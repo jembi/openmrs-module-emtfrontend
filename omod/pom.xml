@@ -13,6 +13,13 @@
 	<description>OpenMRS module project for EMR Monitoring Tool Frontend</description>
 
 	<dependencies>
+ 	<dependency>
+  		<groupId>org.apache.pdfbox</groupId>
+  		<artifactId>pdfbox-app</artifactId>
+  		<version>1.8.5</version>
+  		<type>jar</type>
+  	</dependency>
+
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>emtfrontend-api</artifactId>

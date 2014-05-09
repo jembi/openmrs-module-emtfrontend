@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.springframework.stereotype.Controller;
@@ -59,7 +60,9 @@ public class EmtFrontendFormController{
 		return SUCCESS_FORM_VIEW;	}
 
 	@RequestMapping(value = "/module/emtfrontend/generatePDF.form", method = RequestMethod.GET)
-    private void generatePDF(HttpServletRequest request, HttpServletResponse response) { 
+    private void generatePDF(HttpServletRequest request, HttpServletResponse response) {
+		PDDocument p = null;
+		
 		  try {
 
 			  
@@ -85,7 +88,6 @@ public class EmtFrontendFormController{
 			e.printStackTrace();
 		}
 	}
-	
 
 	/**
 	 * All the parameters are optional based on the necessity  
