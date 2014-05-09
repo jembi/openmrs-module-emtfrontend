@@ -1,0 +1,490 @@
+package org.openmrs.module.emtfrontend;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
+import javax.xml.transform.TransformerException;
+
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
+public class Emt {
+
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+	static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
+
+	class Startup {
+		Date date = null;
+		boolean dirty = false;
+
+		public Startup(String timestamp, boolean dirty) throws ParseException {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+			date = sdf.parse(timestamp);
+			this.dirty = dirty;
+		}
+	}
+
+	class Heartbeat {
+		Date date = null;
+		int numberProcessors = -1;
+		double loadAverage1Min = -1;
+		double loadAverage5Min = -1;
+		double loadAverage15Min = -1;
+		int totalMemory = -1;
+		int freeMemory = -1;
+
+		public Heartbeat(String timestamp, StringTokenizer st)
+				throws ParseException {
+			date = sdf.parse(timestamp);
+			if (st.hasMoreTokens())
+				loadAverage1Min = Double.parseDouble(st.nextToken());
+			if (st.hasMoreTokens())
+				loadAverage5Min = Double.parseDouble(st.nextToken());
+			if (st.hasMoreTokens())
+				loadAverage15Min = Double.parseDouble(st.nextToken());
+			if (st.hasMoreTokens())
+				numberProcessors = Integer.parseInt(st.nextToken());
+			if (st.hasMoreTokens())
+				totalMemory = Integer.parseInt(st.nextToken());
+			if (st.hasMoreTokens())
+				freeMemory = Integer.parseInt(st.nextToken());
+		}
+	}
+
+	public static void main(String[] args) {
+		try {
+			SimpleDateFormat shortDf = new SimpleDateFormat("yyyyMMdd");
+			Date startDate = shortDf.parse(args[0]);
+			Date endDate = shortDf.parse(args[1]);
+
+			// add one day minus 1 second to end date to easily include end date
+			// in
+			// calculations
+			Calendar c = Calendar.getInstance();
+			c.setTime(endDate);
+			c.add(Calendar.HOUR, 24);
+			c.add(Calendar.SECOND, -1);
+			endDate = c.getTime();
+
+			String emtLog = args[2];
+			Emt emt = new Emt();
+			emt.parseLog(startDate, endDate, emtLog);
+
+			// todo set hours, minutes, seconds of start and end dates to outer ranges of period
+			Emt emtThisWeek = new Emt();
+		    c = Calendar.getInstance();
+		    c.setTime(new Date());
+		    int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+		    c.add(Calendar.DATE, - i + 1);
+		    Date start = c.getTime();
+		    c.add(Calendar.DATE, 6);
+		    Date end = c.getTime();
+			emtThisWeek.parseLog(start, end, emtLog);
+			String thisWeekUptime = emtThisWeek.systemUptime(start, end) + " ("
+					+ df.format(start) + " - " + df.format(end) + ")";
+
+			Emt emtPreviousWeek = new Emt();
+		    c = Calendar.getInstance();
+		    c.setTime(new Date());
+		    i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+		    c.add(Calendar.DATE, -i - 7 + 1);
+		    start = c.getTime();
+		    c.add(Calendar.DATE, 6);
+		    end = c.getTime();
+			emtPreviousWeek.parseLog(start, end, emtLog);
+			String previousWeekUptime = emtPreviousWeek
+					.systemUptime(start, end)
+					+ " ("
+					+ df.format(start)
+					+ " - "
+					+ df.format(end) + ")";
+
+			Emt emtPreviousMonth = new Emt();
+		    c = Calendar.getInstance();
+		    c.setTime(new Date());
+		    c.set(Calendar.DAY_OF_MONTH, 1);
+		    c.add(Calendar.MONTH, -1);
+		    start = c.getTime();
+		    c.add(Calendar.MONTH, 1);
+		    c.add(Calendar.DAY_OF_YEAR, -1);
+		    end = c.getTime();
+			emtPreviousMonth.parseLog(start, end, emtLog);
+			String previousMonthUptime = emtPreviousMonth.systemUptime(start,
+					end)
+					+ " ("
+					+ df.format(start)
+					+ " - "
+					+ df.format(end)
+					+ ")";
+
+			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
+					previousWeekUptime, previousMonthUptime);
+			System.out.println(s);
+			String emtPdfOutput = args[3];
+			emt.generatePdfReport(s, startDate, endDate, emtPdfOutput);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	Date now = new Date();
+	String systemId = "";
+	String clinicDays = "Mo,Tu,We,Th,Fr";
+	int heartbeatCronjobFirstStartAtMinute = 0;
+	int heartbeatCronjobIntervallInMinutes = 15;
+	int clinicStart = 800;
+	int clinicStop = 1700;
+
+	int startupCount = 0;
+	int shutdownCount = 0;
+	int startupsWithoutShutdowns = 0;
+	List<Startup> startups = new ArrayList<Startup>();
+	List<Heartbeat> heartbeats = new ArrayList<Heartbeat>();
+	List openmrsHeartbeats = new ArrayList();
+
+	private void parseLog(Date startDate, Date endDate, String emtLog)
+			throws FileNotFoundException {
+		File emt = new File(emtLog);
+		Scanner scanner = new Scanner(emt);
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			try {
+				StringTokenizer st = new StringTokenizer(line, ";", false);
+				// timestamp
+				String timestamp = "";
+				if (st.hasMoreTokens()) {
+					timestamp = st.nextToken();
+					if (inPeriod(startDate, endDate, timestamp)) {
+						// system id
+						if (st.hasMoreTokens()) {
+							systemId = st.nextToken();
+						}
+						// event type
+						if (st.hasMoreTokens()) {
+							String type = st.nextToken().trim();
+							if ("STARTUP".equals(type)) {
+								startupCount++;
+								if (st.hasMoreTokens()) {
+									String s = st.nextToken();
+									if ("DIRTY".equals(s)) {
+										startupsWithoutShutdowns++;
+										startups.add(new Startup(timestamp,
+												true));
+									} else {
+										startups.add(new Startup(timestamp,
+												false));
+									}
+								} else {
+									startups.add(new Startup(timestamp, false));
+								}
+							} else if ("SHUTDOWN".equals(type)) {
+								shutdownCount++;
+							} else if ("HEARTBEAT".equals(type)) {
+								Heartbeat hb = new Heartbeat(timestamp, st);
+								heartbeats.add(hb);
+							} else if ("OPENMRS-HEARTBEAT".equals(type)) {
+
+							} else if ("EMT-INSTALL".equals(type)) {
+
+							} else {
+								System.out.println("Unknown type '" + type
+										+ "' found, ignoring");
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				System.out.println("Error (" + e.getMessage()
+						+ ") parsing line: " + line);
+			}
+		}
+	}
+
+	private boolean inPeriod(Date startDate, Date endDate, String line)
+			throws ParseException {
+		return inPeriod(startDate, endDate, sdf.parse(line));
+	}
+
+	private boolean inPeriod(Date startDate, Date endDate, Date date) {
+		return (startDate.before(date) && endDate.after(date));
+	}
+
+	private boolean inPeriod(Date startDate, Date endDate, Heartbeat hb) {
+		return inPeriod(startDate, endDate, hb.date);
+	}
+
+	private boolean duringClinic(Heartbeat hb) {
+		return duringClinic(hb.date);
+	}
+
+	private boolean duringClinic(Date date) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		boolean matchingDay = false;
+		switch (c.get(Calendar.DAY_OF_WEEK)) {
+		case Calendar.MONDAY:
+			if (clinicDays.contains("Mo"))
+				matchingDay = true;
+			break;
+		case Calendar.TUESDAY:
+			if (clinicDays.contains("Tu"))
+				matchingDay = true;
+			break;
+		case Calendar.WEDNESDAY:
+			if (clinicDays.contains("We"))
+				matchingDay = true;
+			break;
+		case Calendar.THURSDAY:
+			if (clinicDays.contains("Th"))
+				matchingDay = true;
+			break;
+		case Calendar.FRIDAY:
+			if (clinicDays.contains("Fr"))
+				matchingDay = true;
+			break;
+		case Calendar.SATURDAY:
+			if (clinicDays.contains("Sa"))
+				matchingDay = true;
+			break;
+		case Calendar.SUNDAY:
+			if (clinicDays.contains("Su"))
+				matchingDay = true;
+			break;
+		}
+
+		boolean matchingTime = false;
+		int time = Integer.parseInt("" + c.get(Calendar.HOUR_OF_DAY)
+				+ c.get(Calendar.MINUTE));
+		matchingTime = clinicStart <= time && clinicStop >= time;
+		return matchingDay && matchingTime;
+	}
+
+	private List<String> report(Date startDate, Date endDate,
+			String thisWeekUptime, String previousWeekUptime,
+			String previousMonthUptime) {
+		List<String> ss = new ArrayList<String>();
+		ss.add("Current date and time: " + new Date());
+		ss.add("");
+		ss.add("\nSystem ID: " + systemId);
+		ss.add("\nPrimary Clinic Days: " + clinicDays);
+		ss.add("\nPrimary Clinic Hours: " + clinicStart + " - " + clinicStop);
+		ss.add("");
+		ss.add("\nStart date: " + df.format(startDate));
+		ss.add("\nEnd date: " + df.format(endDate) + " (including)");
+		ss.add("");
+		ss.add("\nPercentage of system uptime (1): "
+				+ systemUptime(startDate, endDate));
+		ss.add("\n  This week: " + thisWeekUptime);
+		ss.add("\n  Last week: " + previousWeekUptime);
+		ss.add("\n  Last month: " + previousMonthUptime);
+		ss.add("\nPercentage of OpenMRS uptime (1): <to be implemented>");
+		ss.add("");
+		ss.add("\nNumber of system starts (2): " + startupCount);
+		ss.add("\nNumber of system starts without preceding shutdown (2): "
+				+ startupsWithoutShutdowns);
+		ss.add("\nTimes of last system starts (2): " + lastSystemRestarts());
+		ss.add("\nHighest average 5 minutes system loads (number of processors) (2): "
+				+ highestAverage5minLoads());
+		ss.add("\nLowest amounts of free memory in MB (2): "
+				+ lowestFreeMemory());
+		ss.add("");
+		ss.add("\nTotal number of Encounters  (3): <to be implemented>");
+		ss.add("\nTotal number of Obs (3): <to be implemented>");
+		ss.add("\nTotal number of users (3): <to be implemented>");
+		ss.add("\nFilename of last local OpenMRS backup (4): "
+				+ lastOpenMRSBackup());
+		ss.add("");
+		ss.add("\n____");
+		ss.add("");
+		ss.add("\n(1) during clinic hours between start and end date");
+		ss.add("\n(2) between start and end date (incl. outside of clinic hours)");
+		ss.add("\n(3) in OpenMRS database");
+		ss.add("\n(4) in /var/backups/OpenMRS");
+
+		return ss;
+	}
+
+	private void generatePdfReport(List<String> lines, Date startDate,
+			Date endDate, String outputFilename) throws IOException,
+			COSVisitorException, TransformerException {
+		PDDocument document = new PDDocument();
+
+		// metadata
+		PDDocumentCatalog catalog = document.getDocumentCatalog();
+		PDDocumentInformation info = document.getDocumentInformation();
+		info.setAuthor("Christian Neumann");
+		info.setTitle("EMT Report");
+		// info.setSubject(subject);
+		info.setProducer("EMR Monitoring Tool");
+		info.setCreator(System.getProperty("user.name"));
+		info.setCreationDate(Calendar.getInstance());
+		document.setDocumentInformation(info);
+
+		// content
+		PDPage page = new PDPage(PDPage.PAGE_SIZE_A4);
+		document.addPage(page);
+		PDFont font = PDType1Font.HELVETICA;
+		PDPageContentStream contentStream = new PDPageContentStream(document,
+				page);
+
+		if (lines.size() == 0) {
+			return;
+		}
+		final double fontHeight = font.getFontDescriptor().getFontBoundingBox()
+				.getHeight() / 1000 * 12 * 0.865;
+
+		contentStream.beginText();
+		contentStream.setFont(font, 12);
+		contentStream.appendRawCommands(fontHeight + " TL\n");
+		contentStream.moveTextPositionByAmount(50, 750);
+		for (int i = 0; i < lines.size(); i++) {
+			contentStream.drawString(lines.get(i));
+			if (i < lines.size() - 1) {
+				contentStream.appendRawCommands("T*\n");
+			}
+		}
+		contentStream.endText();
+		contentStream.close();
+
+		// Save the results and ensure that the document is properly closed:
+		document.save(outputFilename);
+		document.close();
+	}
+
+	private String systemUptime(Date startDate, Date endDate) {
+		// count number of recorded heartbeats during clinic times
+		int heartBeatsDuringClinic = 0;
+		for (Heartbeat hb : heartbeats) {
+			if (inPeriod(startDate, endDate, hb) && duringClinic(hb)) {
+				heartBeatsDuringClinic++;
+			}
+		}
+
+		// calculate number of expected heartbeats during clinic times
+		int expectedHeartbeats = 0;
+		Calendar date = Calendar.getInstance();
+		// round up to next time when next heartbeat is expected
+		// and simply ignore the few minutes before as we don't know
+		// what happened during this initial period
+		date.setTime(startDate);
+		int minutes = date.get(Calendar.MINUTE);
+		int nextCronjob = ((minutes / heartbeatCronjobIntervallInMinutes) + 1)
+				* heartbeatCronjobIntervallInMinutes;
+		date.set(Calendar.MINUTE, nextCronjob);
+		date.set(Calendar.SECOND, 0);
+		date.set(Calendar.MILLISECOND, 0);
+		Calendar end = Calendar.getInstance();
+		if (end.before(new Date())) {
+			// if specified end date is in future, take current time as end date
+			end.setTime(endDate);
+		}
+		while (date.before(end)) {
+			if (duringClinic(date.getTime())) {
+				expectedHeartbeats++;
+			}
+			date.add(Calendar.MINUTE, heartbeatCronjobIntervallInMinutes);
+		}
+		if (expectedHeartbeats > 0) {
+			double uptime = (double) heartBeatsDuringClinic
+					/ (double) expectedHeartbeats * 100;
+			BigDecimal bd = new BigDecimal(uptime);
+			bd = bd.setScale(2, RoundingMode.HALF_UP);
+			return "" + bd.doubleValue() + " %" + " (" + heartBeatsDuringClinic
+					+ "/" + expectedHeartbeats + "*100)";
+		} else {
+			return "Not a number" + " (" + heartBeatsDuringClinic + "/"
+					+ expectedHeartbeats + "*100)";
+		}
+	}
+
+	private String lowestFreeMemory() {
+		Collections.sort(heartbeats, new Comparator<Heartbeat>() {
+			public int compare(Heartbeat hb1, Heartbeat hb2) {
+				return ((Integer) hb1.freeMemory)
+						.compareTo((Integer) hb2.freeMemory);
+			}
+		});
+		String s = "";
+		s += heartbeats.size() > 0 ? heartbeats.get(0).freeMemory : "";
+		s += " " + (heartbeats.size() > 1 ? heartbeats.get(1).freeMemory : "");
+		s += " " + (heartbeats.size() > 2 ? heartbeats.get(2).freeMemory : "");
+		return s;
+	}
+
+	private String lastSystemRestarts() {
+		Collections.sort(startups, new Comparator<Startup>() {
+			public int compare(Startup s1, Startup s2) {
+				return ((Date) s1.date).compareTo((Date) s2.date);
+			}
+		});
+		String s = "";
+		s += startups.size() > 0 ? sdf.format(startups.get(0).date) : "";
+		s += " " + (startups.size() > 1 ? sdf.format(startups.get(1).date) : "");
+		s += " " + (startups.size() > 2 ? sdf.format(startups.get(2).date) : "");
+		return s;
+	}
+
+	private String highestAverage5minLoads() {
+		Collections.sort(heartbeats, new Comparator<Heartbeat>() {
+			public int compare(Heartbeat hb1, Heartbeat hb2) {
+				return ((Double) hb1.loadAverage5Min)
+						.compareTo((Double) hb2.loadAverage5Min);
+			}
+		});
+		String s = "";
+		s += heartbeats.size() > 0 ? heartbeats.get(heartbeats.size() - 1).loadAverage5Min
+				: "";
+		s += " "
+				+ (heartbeats.size() > 1 ? heartbeats
+						.get(heartbeats.size() - 2).loadAverage5Min : "");
+		s += " "
+				+ (heartbeats.size() > 2 ? heartbeats
+						.get(heartbeats.size() - 3).loadAverage5Min : "");
+		s += " ("
+				+ (heartbeats.size() > 0 ? heartbeats.get(0).numberProcessors
+						: "") + ")";
+		return s;
+	}
+
+	private String lastOpenMRSBackup() {
+		File fs = new File("/var/backups/OpenMRS");
+		// File fs = new File("/tmp");
+		File[] allFiles = fs.listFiles();
+		if (allFiles != null && allFiles.length > 0) {
+			Arrays.sort(allFiles, new Comparator<File>() {
+				public int compare(File f1, File f2) {
+					return ((Long) f1.lastModified()).compareTo((Long) f2
+							.lastModified());
+				}
+			});
+			String s = allFiles[allFiles.length - 1].getName() + " ("
+					+ sdf.format(new Date(allFiles[allFiles.length - 1].lastModified()))
+					+ ")";
+			return s;
+		} else {
+			return "<not found>";
+
+		}
+	}
+
+}
