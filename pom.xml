@@ -28,8 +28,7 @@
 		<dependencies>
 			<!--
 			Libraries from lib to add as dependencies with compile or runtime scope:
-			
-				
+					
 			Find matching dependencies in maven central repository.
 			<dependency>
 				<groupId>org.other.library</groupId>
@@ -39,12 +38,12 @@
 			</dependency>
 			-->
 		
- 	<dependency>
-  		<groupId>org.apache.pdfbox</groupId>
-  		<artifactId>pdfbox-app</artifactId>
-  		<version>1.8.5</version>
-  		<type>jar</type>
-  	</dependency>
+ 			<dependency>
+		  		<groupId>org.apache.pdfbox</groupId>
+		  		<artifactId>pdfbox-app</artifactId>
+  				<version>1.8.5</version>
+		  		<type>jar</type>
+		  	</dependency>
 	
 			<dependency>
 				<groupId>org.openmrs.api</groupId>
@@ -81,14 +80,7 @@
 				<type>pom</type>
 				<scope>test</scope>
 			</dependency>
-	<dependency>
-  <groupId>org.openmrs.module</groupId>
-  <artifactId>pihmalawi</artifactId>
-  <version>3.6</version>
-  <type>pom</type>
-  <scope>compile</scope>
-</dependency>
-	</dependencies>
+		</dependencies>
 	</dependencyManagement>
 
 	<properties>
@@ -121,15 +113,6 @@
 			<name>OpenMRS Nexus Repository</name>
 			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
 		</repository>
-    <repository>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>http://repo.maven.apache.org/maven2</url>
-      <layout>default</layout>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
 	</repositories>
 
 	<pluginRepositories>
