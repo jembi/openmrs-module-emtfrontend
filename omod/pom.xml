@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>emtfrontend</artifactId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.2-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>emtfrontend-omod</artifactId>
@@ -15,7 +15,7 @@
 	<dependencies>
 	 	<dependency>
 	  		<groupId>org.apache.pdfbox</groupId>
-	  		<artifactId>pdfbox-app</artifactId>
+	  		<artifactId>pdfbox</artifactId>
 	  		<type>jar</type>
 	  	</dependency>
 
@@ -178,5 +178,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

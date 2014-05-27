@@ -4,7 +4,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>emtfrontend</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>EMR Monitoring Tool Frontend</name>
 	<description>Frontend for simplier access to reports of the EMR Monitoring Tool.</description>
@@ -40,7 +40,7 @@
 		
  			<dependency>
 		  		<groupId>org.apache.pdfbox</groupId>
-		  		<artifactId>pdfbox-app</artifactId>
+		  		<artifactId>pdfbox</artifactId>
   				<version>1.8.5</version>
 		  		<type>jar</type>
 		  	</dependency>
