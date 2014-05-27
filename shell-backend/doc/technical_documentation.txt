@@ -1,0 +1,54 @@
+Overview
+The EMT (EMR Monitoring Tool)
+
+Components
+Java reporting
+Shell data collection
+OpenMRS module
+
+Installation process
+
+Development
+
+Thoughts on command last -x
+The log file wtmp and its command last can be used to see changes in run levels and reboot and shutdown events. This is available on every system and in theory could be used for even historic evaluation of system uptime without any additional software and conficuration. However: Even though the existence of crashes are detectable (reboot entry without preceding shutdowns), the time when it happened is not available (unless a user was logged in through a terminal (PTS)). Therefore the system uptime can only be calculates when there was not crash/unexpected shutdown.
+
+Example output with stripped down content for reboots, shutdowns and crashes:
+
+reboot 12:29
+moh-admi pts/0        192.168.39.1     Tue Apr 29 12:30   still logged in   
+runlevel (to lvl 2)   3.2.0-60-generic Tue Apr 29 12:29 - 12:30  (00:00)    
+reboot   system boot  3.2.0-60-generic Tue Apr 29 12:29 - 12:30  (00:00)    
+shutdown system down  3.2.0-60-generic Tue Apr 29 12:29 - 12:29  (00:00)    
+runlevel (to lvl 6)   3.2.0-60-generic Tue Apr 29 12:29 - 12:29  (00:00)    
+
+shutdown 12:31
+
+startup 12:36
+moh-admi pts/0        192.168.39.1     Tue Apr 29 12:36   still logged in   
+runlevel (to lvl 2)   3.2.0-60-generic Tue Apr 29 12:34 - 12:36  (00:01)    
+reboot   system boot  3.2.0-60-generic Tue Apr 29 12:34 - 12:36  (00:01)    
+shutdown system down  3.2.0-60-generic Tue Apr 29 12:31 - 12:34  (00:03)    
+runlevel (to lvl 0)   3.2.0-60-generic Tue Apr 29 12:31 - 12:31  (00:00)    
+moh-admi pts/0        192.168.39.1     Tue Apr 29 12:30 - down   (00:00)    
+runlevel (to lvl 2)   3.2.0-60-generic Tue Apr 29 12:29 - 12:31  (00:01)    
+reboot   system boot  3.2.0-60-generic Tue Apr 29 12:29 - 12:31  (00:01)    
+shutdown system down  3.2.0-60-generic Tue Apr 29 12:29 - 12:29  (00:00)    
+runlevel (to lvl 6)   3.2.0-60-generic Tue Apr 29 12:29 - 12:29  (00:00)    
+
+forced shutdown 12:40
+
+startup 12:49
+moh-admi pts/0        192.168.39.1     Tue Apr 29 12:49   still logged in   
+runlevel (to lvl 2)   3.2.0-60-generic Tue Apr 29 12:48 - 12:49  (00:01)    
+reboot   system boot  3.2.0-60-generic Tue Apr 29 12:48 - 12:49  (00:01)    
+moh-admi pts/0        192.168.39.1     Tue Apr 29 12:36 - crash  (00:12)    
+runlevel (to lvl 2)   3.2.0-60-generic Tue Apr 29 12:34 - 12:48  (00:13)    
+reboot   system boot  3.2.0-60-generic Tue Apr 29 12:34 - 12:49  (00:15)    
+shutdown system down  3.2.0-60-generic Tue Apr 29 12:31 - 12:34  (00:03)    
+runlevel (to lvl 0)   3.2.0-60-generic Tue Apr 29 12:31 - 12:31  (00:00)    
+moh-admi pts/0        192.168.39.1     Tue Apr 29 12:30 - down   (00:00)    
+runlevel (to lvl 2)   3.2.0-60-generic Tue Apr 29 12:29 - 12:31  (00:01)    
+reboot   system boot  3.2.0-60-generic Tue Apr 29 12:29 - 12:31  (00:01)    
+shutdown system down  3.2.0-60-generic Tue Apr 29 12:29 - 12:29  (00:00)    
+runlevel (to lvl 6)   3.2.0-60-generic Tue Apr 29 12:29 - 12:29  (00:00)    

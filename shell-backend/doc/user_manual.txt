@@ -1,0 +1,7 @@
+Installation
+
+Invocation via Command line
+
+Invocation via OpenMRS module (optional)
+
+(Re-) configuration of HC-specific parameters
