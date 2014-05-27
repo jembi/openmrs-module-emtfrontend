@@ -30,50 +30,15 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class Emt {
 
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-	static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
-
-	class Startup {
-		Date date = null;
-		boolean dirty = false;
-
-		public Startup(String timestamp, boolean dirty) throws ParseException {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-			date = sdf.parse(timestamp);
-			this.dirty = dirty;
-		}
-	}
-
-	class Heartbeat {
-		Date date = null;
-		int numberProcessors = -1;
-		double loadAverage1Min = -1;
-		double loadAverage5Min = -1;
-		double loadAverage15Min = -1;
-		int totalMemory = -1;
-		int freeMemory = -1;
-
-		public Heartbeat(String timestamp, StringTokenizer st)
-				throws ParseException {
-			date = sdf.parse(timestamp);
-			if (st.hasMoreTokens())
-				loadAverage1Min = Double.parseDouble(st.nextToken());
-			if (st.hasMoreTokens())
-				loadAverage5Min = Double.parseDouble(st.nextToken());
-			if (st.hasMoreTokens())
-				loadAverage15Min = Double.parseDouble(st.nextToken());
-			if (st.hasMoreTokens())
-				numberProcessors = Integer.parseInt(st.nextToken());
-			if (st.hasMoreTokens())
-				totalMemory = Integer.parseInt(st.nextToken());
-			if (st.hasMoreTokens())
-				freeMemory = Integer.parseInt(st.nextToken());
-		}
-	}
+	// would be nice to get it from the maven build
+	private static final String EMT_VERSION = "0.2-SNAPSHOT";
+	
+	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+	public static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
+	public static SimpleDateFormat shortDf = new SimpleDateFormat("yyyyMMdd");
 
 	public static void main(String[] args) {
 		try {
-			SimpleDateFormat shortDf = new SimpleDateFormat("yyyyMMdd");
 			Date startDate = shortDf.parse(args[0]);
 			Date endDate = shortDf.parse(args[1]);
 
@@ -160,7 +125,7 @@ public class Emt {
 	int startupsWithoutShutdowns = 0;
 	List<Startup> startups = new ArrayList<Startup>();
 	List<Heartbeat> heartbeats = new ArrayList<Heartbeat>();
-	List openmrsHeartbeats = new ArrayList();
+	List<OpenmrsHeartbeat> openmrsHeartbeats = new ArrayList<OpenmrsHeartbeat>();
 
 	private void parseLog(Date startDate, Date endDate, String emtLog)
 			throws FileNotFoundException {
@@ -203,8 +168,9 @@ public class Emt {
 								Heartbeat hb = new Heartbeat(timestamp, st);
 								heartbeats.add(hb);
 							} else if ("OPENMRS-HEARTBEAT".equals(type)) {
-
-							} else if ("EMT-INSTALL".equals(type)) {
+								OpenmrsHeartbeat hb = new OpenmrsHeartbeat(timestamp, st);
+								openmrsHeartbeats.add(hb);
+							} else if ("EMT-INSTALL".equals(type) || "EMT-CONFIGURE".equals(type)) {
 
 							} else {
 								System.out.println("Unknown type '" + type
@@ -286,6 +252,8 @@ public class Emt {
 		ss.add("Current date and time: " + new Date());
 		ss.add("");
 		ss.add("\nSystem ID: " + systemId);
+		ss.add("\nLast EMT installation date: <to be implemented>");
+		ss.add("\nEMT version: " + emtVersion());
 		ss.add("\nPrimary Clinic Days: " + clinicDays);
 		ss.add("\nPrimary Clinic Hours: " + clinicStart + " - " + clinicStop);
 		ss.add("");
@@ -297,31 +265,65 @@ public class Emt {
 		ss.add("\n  This week: " + thisWeekUptime);
 		ss.add("\n  Last week: " + previousWeekUptime);
 		ss.add("\n  Last month: " + previousMonthUptime);
-		ss.add("\nPercentage of OpenMRS uptime (1): <to be implemented>");
 		ss.add("");
 		ss.add("\nNumber of system starts (2): " + startupCount);
-		ss.add("\nNumber of system starts without preceding shutdown (2): "
-				+ startupsWithoutShutdowns);
 		ss.add("\nTimes of last system starts (2): " + lastSystemRestarts());
+		ss.add("\nNumber of system starts without preceding shutdown (aka crashes) (2): "
+				+ startupsWithoutShutdowns);
+		ss.add("\nTimes of last system crashes (approximation) (2): <to be implemented>");
+		ss.add("");
 		ss.add("\nHighest average 5 minutes system loads (number of processors) (2): "
 				+ highestAverage5minLoads());
 		ss.add("\nLowest amounts of free memory in MB (2): "
 				+ lowestFreeMemory());
 		ss.add("");
-		ss.add("\nTotal number of Encounters  (3): <to be implemented>");
-		ss.add("\nTotal number of Obs (3): <to be implemented>");
-		ss.add("\nTotal number of users (3): <to be implemented>");
-		ss.add("\nFilename of last local OpenMRS backup (4): "
+		ss.add("\nPercentage of OpenMRS uptime (1): <to be implemented>");
+		ss.add("\nNumber of Encounters (3) - (4): " + (totalEncounters(false) - totalEncounters(true)) + " - " + totalEncounters(false));
+		ss.add("\nNumber of Obs (3) - (4): " + (totalObs(false) - totalObs(true)) + " - " + totalObs(false));
+		ss.add("\nNumber of users (3) - (4): " + (totalUsers(false) - totalUsers(true)) + " - " + totalUsers(false));
+		ss.add("\nLast local OpenMRS backup (5): "
 				+ lastOpenMRSBackup());
 		ss.add("");
 		ss.add("\n____");
 		ss.add("");
 		ss.add("\n(1) during clinic hours between start and end date");
 		ss.add("\n(2) between start and end date (incl. outside of clinic hours)");
-		ss.add("\n(3) in OpenMRS database");
-		ss.add("\n(4) in /var/backups/OpenMRS");
+		ss.add("\n(3) new during period in OpenMRS database (not voided or retired)");
+		ss.add("\n(4) total ever in OpenMRS database (not voided or retired)");
+		ss.add("\n(5) in /var/backups/OpenMRS");
 
 		return ss;
+	}
+
+	private String emtVersion() {
+		return EMT_VERSION;
+	}
+
+	private int totalEncounters(boolean atStart) {
+		if (atStart && openmrsHeartbeats.size() > 0) {
+			return openmrsHeartbeats.get(0).totalEncounters;
+		} else if (openmrsHeartbeats.size() > 1) {
+			return openmrsHeartbeats.get(openmrsHeartbeats.size() - 1).totalEncounters;
+		}
+		return -1;
+	}
+
+	private int totalObs(boolean atStart) {
+		if (atStart && openmrsHeartbeats.size() > 0) {
+			return openmrsHeartbeats.get(0).totalObs;
+		} else  if (openmrsHeartbeats.size() > 1) {
+			return openmrsHeartbeats.get(openmrsHeartbeats.size() - 1).totalObs;
+		}
+		return -1;
+	}
+
+	private int totalUsers(boolean atStart) {
+		if (atStart && openmrsHeartbeats.size() > 0) {
+			return openmrsHeartbeats.get(0).totalUsers;
+		} else  if (openmrsHeartbeats.size() > 1) {
+			return openmrsHeartbeats.get(openmrsHeartbeats.size() - 1).totalUsers;
+		}
+		return -1;
 	}
 
 	private void generatePdfReport(List<String> lines, Date startDate,
@@ -483,7 +485,6 @@ public class Emt {
 			return s;
 		} else {
 			return "<not found>";
-
 		}
 	}
 
