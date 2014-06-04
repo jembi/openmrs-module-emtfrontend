@@ -13,14 +13,23 @@ public class OpenmrsHeartbeat {
 	public OpenmrsHeartbeat(String timestamp, StringTokenizer st)
 			throws ParseException {
 		date = Emt.sdf.parse(timestamp);
-		// responding
 		if (st.hasMoreTokens())
+			// todo, deal with responding et al
 			st.nextToken();
-		if (st.hasMoreTokens())
-			totalEncounters = Integer.parseInt(st.nextToken());
-		if (st.hasMoreTokens())
-			totalObs = Integer.parseInt(st.nextToken());
-		if (st.hasMoreTokens())
-			totalUsers = Integer.parseInt(st.nextToken());
+		if (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			if (s != null && !"".equals(s))
+				totalEncounters = Integer.parseInt(s);
+		}
+		if (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			if (s != null && !"".equals(s))
+				totalObs = Integer.parseInt(s);
+		}
+		if (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			if (s != null && !"".equals(s))
+				totalUsers = Integer.parseInt(s);
+		}
 	}
 }

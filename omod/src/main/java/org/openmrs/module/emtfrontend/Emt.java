@@ -1,8 +1,10 @@
 package org.openmrs.module.emtfrontend;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -14,6 +16,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -27,11 +30,12 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.openmrs.module.emtfrontend.web.controller.EmtFrontendFormController.Config;
 
 public class Emt {
 
 	// would be nice to get it from the maven build
-	private static final String EMT_VERSION = "0.2-SNAPSHOT";
+	private static final String EMT_VERSION = "0.3-SNAPSHOT";
 	
 	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	public static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
@@ -42,6 +46,7 @@ public class Emt {
 			Date startDate = shortDf.parse(args[0]);
 			Date endDate = shortDf.parse(args[1]);
 
+			loadConfig();
 			// add one day minus 1 second to end date to easily include end date
 			// in
 			// calculations
@@ -112,13 +117,37 @@ public class Emt {
 		}
 	}
 
+	private static void loadConfig() {
+		Properties prop = new Properties();
+		InputStream input = null;
+
+		Config c = null;
+		try {
+			input = new FileInputStream(Constants.RUNTIME_DIR + "/emt.properties");
+			prop.load(input);
+			clinicDays = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
+			clinicStart = Integer.parseInt(prop.getProperty("clinicStart", "8"));
+			clinicStop = Integer.parseInt(prop.getProperty("clinicEnd", "17"));
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 	Date now = new Date();
 	String systemId = "";
-	String clinicDays = "Mo,Tu,We,Th,Fr";
+	static String clinicDays = "Mo,Tu,We,Th,Fr";
+	static int clinicStart = 800;
+	static int clinicStop = 1700;
 	int heartbeatCronjobFirstStartAtMinute = 0;
 	int heartbeatCronjobIntervallInMinutes = 15;
-	int clinicStart = 800;
-	int clinicStop = 1700;
 
 	int startupCount = 0;
 	int shutdownCount = 0;
@@ -181,7 +210,8 @@ public class Emt {
 				}
 			} catch (Exception e) {
 				System.out.println("Error (" + e.getMessage()
-						+ ") parsing line: " + line);
+						+ ", " + e.getCause() + ") parsing line: " + line);
+				e.printStackTrace();
 			}
 		}
 	}

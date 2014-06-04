@@ -20,7 +20,7 @@ import org.openmrs.module.Activator;
 /**
  * This class contains the logic that is run every time this module is either started or shutdown
  */
-public class BasicModuleActivator implements Activator {
+public class EmtFrontendActivator implements Activator {
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	

@@ -2,6 +2,7 @@
 
 INSTALL_DIR=$HOME/EmrMonitoringTool
 LOG=$HOME/emt.log
+CONFIG=$HOME/emt.properties
 SYSTEM_ID=`hostname`-`ifconfig eth0 | grep HWaddr | awk '{ print $NF}' | sed 's/://g'`
 NOW=`date +%Y%m%d-%H%M%S`
 
@@ -15,6 +16,16 @@ crontab -l | grep -v startup-hook.sh | crontab -
 (crontab -l ; echo "@reboot $INSTALL_DIR/startup-hook.sh") | crontab -
 
 echo "$NOW;$SYSTEM_ID;EMT-INSTALL;1.0" >> $LOG
+
+# create properties file if necessary
+if [[ ! -f $CONFIG ]]; then
+  echo ""
+  echo "Creating default config file for clinic times"
+  echo "clinicStart=800" >> $CONFIG
+  echo "clinicEnd=1700" >> $CONFIG
+  echo "clinicDays=Mo,Tu,We,Th,Fr" >> $CONFIG
+fi
+chmod 666 $CONFIG
 
 # Check system time
 echo ""

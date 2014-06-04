@@ -4,7 +4,8 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>emtfrontend</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<!-- Adjust version info in class Emt as well! -->
+	<version>0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>EMR Monitoring Tool Frontend</name>
 	<description>Frontend for simplier access to reports of the EMR Monitoring Tool.</description>
