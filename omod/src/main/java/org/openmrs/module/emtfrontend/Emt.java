@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -22,7 +20,6 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
@@ -30,9 +27,6 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class Emt {
-
-	// would be nice to get it from the maven build
-	private static final String EMT_VERSION = "0.3-SNAPSHOT";
 
 	public static void main(String[] args) {
 		try {
@@ -64,7 +58,7 @@ public class Emt {
 			c.add(Calendar.DATE, 6);
 			Date end = c.getTime();
 			emtThisWeek.parseLog(start, end, emtLog);
-			String thisWeekUptime = emtThisWeek.systemUptime(start, end).calcPercentage() + " ("
+			String thisWeekUptime = emtThisWeek.systemUptime(start, end).print() + " ("
 					+ Constants.df.format(start) + " - " + Constants.df.format(end) + ")";
 
 			Emt emtPreviousWeek = new Emt();
@@ -77,7 +71,7 @@ public class Emt {
 			end = c.getTime();
 			emtPreviousWeek.parseLog(start, end, emtLog);
 			String previousWeekUptime = emtPreviousWeek
-					.systemUptime(start, end).calcPercentage()
+					.systemUptime(start, end).print()
 					+ " ("
 					+ Constants.df.format(start)
 					+ " - "
@@ -94,7 +88,7 @@ public class Emt {
 			end = c.getTime();
 			emtPreviousMonth.parseLog(start, end, emtLog);
 			String previousMonthUptime = emtPreviousMonth.systemUptime(start,
-					end).calcPercentage()
+					end).print()
 					+ " ("
 					+ Constants.df.format(start)
 					+ " - "
@@ -143,8 +137,6 @@ public class Emt {
 	public static String clinicDays = "Mo,Tu,We,Th,Fr";
 	public static int clinicStart = 800;
 	public static int clinicStop = 1700;
-	int heartbeatCronjobIntervallInMinutes = 15;
-	int openmrsHeartbeatCronjobIntervallInMinutes = 15;
 
 	int startupCount = 0;
 	int shutdownCount = 0;
@@ -218,6 +210,10 @@ public class Emt {
 	private List<String> report(Date startDate, Date endDate,
 			String thisWeekUptime, String previousWeekUptime,
 			String previousMonthUptime) {
+		
+		Uptime uptime = systemUptime(startDate, endDate);
+		Uptime openmrsUptime = openmrsUptime(startDate, endDate);
+		
 		List<String> ss = new ArrayList<String>();
 		ss.add("Current date and time: " + new Date());
 		ss.add("");
@@ -231,7 +227,7 @@ public class Emt {
 		ss.add("\nEnd date: " + Constants.df.format(endDate) + " (including)");
 		ss.add("");
 		ss.add("\nPercentage of system uptime (1): "
-				+ systemUptime(startDate, endDate).calcPercentage());
+				+ uptime.print());
 		ss.add("\n  This week: " + thisWeekUptime);
 		ss.add("\n  Last week: " + previousWeekUptime);
 		ss.add("\n  Last month: " + previousMonthUptime);
@@ -248,7 +244,7 @@ public class Emt {
 				+ lowestFreeMemory());
 		ss.add("");
 		ss.add("\nPercentage of OpenMRS uptime (1): "
-				+ openmrsUptime(startDate, endDate).calcPercentage());
+				+ openmrsUptime.print());
 		ss.add("\nNumber of Encounters (3) - (4): "
 				+ (totalEncounters(false) - totalEncounters(true)) + " - "
 				+ totalEncounters(false));
@@ -271,7 +267,7 @@ public class Emt {
 	}
 
 	private String emtVersion() {
-		return EMT_VERSION;
+		return Constants.EMT_VERSION;
 	}
 
 	private int totalEncounters(boolean atStart) {
@@ -307,7 +303,6 @@ public class Emt {
 		PDDocument document = new PDDocument();
 
 		// metadata
-		PDDocumentCatalog catalog = document.getDocumentCatalog();
 		PDDocumentInformation info = document.getDocumentInformation();
 		info.setAuthor("Christian Neumann");
 		info.setTitle("EMT Report");
@@ -325,6 +320,8 @@ public class Emt {
 				page);
 
 		if (lines.size() == 0) {
+			contentStream.endText();
+			contentStream.close();
 			return;
 		}
 		final double fontHeight = font.getFontDescriptor().getFontBoundingBox()
@@ -349,9 +346,9 @@ public class Emt {
 	}
 
 	private Uptime systemUptime(Date startDate, Date endDate) {
-
 		Uptime uptime = new Uptime();
-		uptime.calcHeartbearts(startDate, endDate, heartbeats, heartbeatCronjobIntervallInMinutes);
+		uptime.calcHeartbearts(startDate, endDate, heartbeats, Constants.heartbeatCronjobIntervallInMinutes, Constants.firstHeartbeatCronjobStartsAtMinute);
+		uptime.calcPercentage();
 		return uptime;
 	}
 
@@ -429,7 +426,8 @@ public class Emt {
 
 	private Uptime openmrsUptime(Date startDate, Date endDate) {
 		Uptime uptime = new Uptime();
-		uptime.calcHeartbearts(startDate, endDate, openmrsHeartbeats, openmrsHeartbeatCronjobIntervallInMinutes);
+		uptime.calcHeartbearts(startDate, endDate, openmrsHeartbeats, Constants.openmrsHeartbeatCronjobIntervallInMinutes, Constants.firstOpenmrsHeartbeatCronjobStartsAtMinute);
+		uptime.calcPercentage();
 		return uptime;
 	}
 }

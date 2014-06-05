@@ -11,8 +11,8 @@ crontab -l | grep -v heartbeat.sh | crontab -
 crontab -l | grep -v openmrs-heartbeat.sh | crontab -
 crontab -l | grep -v startup-hook.sh | crontab -
 
-(crontab -l ; echo "0,15,30,45 * * * * $INSTALL_DIR/heartbeat.sh") | crontab -
-(crontab -l ; echo "10,25,40,55 * * * * $INSTALL_DIR/openmrs-heartbeat.sh") | crontab -
+(crontab -l ; echo "1,16,31,46 * * * * $INSTALL_DIR/heartbeat.sh") | crontab -
+(crontab -l ; echo "2,17,32,47 * * * * $INSTALL_DIR/openmrs-heartbeat.sh") | crontab -
 (crontab -l ; echo "@reboot $INSTALL_DIR/startup-hook.sh") | crontab -
 
 echo "$NOW;$SYSTEM_ID;EMT-INSTALL;1.0" >> $LOG
