@@ -54,8 +54,14 @@ public class Emt {
 			c.setTime(new Date());
 			int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
 			c.add(Calendar.DATE, -i + 1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
 			Date start = c.getTime();
 			c.add(Calendar.DATE, 6);
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
 			Date end = c.getTime();
 			emtThisWeek.parseLog(start, end, emtLog);
 			String thisWeekUptime = emtThisWeek.systemUptime(start, end).print() + " ("
@@ -66,7 +72,13 @@ public class Emt {
 			c.setTime(new Date());
 			i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
 			c.add(Calendar.DATE, -i - 7 + 1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
 			start = c.getTime();
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
 			c.add(Calendar.DATE, 6);
 			end = c.getTime();
 			emtPreviousWeek.parseLog(start, end, emtLog);
@@ -82,9 +94,15 @@ public class Emt {
 			c.setTime(new Date());
 			c.set(Calendar.DAY_OF_MONTH, 1);
 			c.add(Calendar.MONTH, -1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
 			start = c.getTime();
 			c.add(Calendar.MONTH, 1);
 			c.add(Calendar.DAY_OF_YEAR, -1);
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
 			end = c.getTime();
 			emtPreviousMonth.parseLog(start, end, emtLog);
 			String previousMonthUptime = emtPreviousMonth.systemUptime(start,
