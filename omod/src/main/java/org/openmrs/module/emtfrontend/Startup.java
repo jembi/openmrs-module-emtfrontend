@@ -8,7 +8,7 @@ public class Startup {
 	public boolean dirty = false;
 
 	public Startup(String timestamp, boolean dirty) throws ParseException {
-		date = Emt.sdf.parse(timestamp);
+		date = Constants.sdf.parse(timestamp);
 		this.dirty = dirty;
 	}
 

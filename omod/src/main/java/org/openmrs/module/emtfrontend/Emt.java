@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -30,21 +28,16 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.openmrs.module.emtfrontend.web.controller.EmtFrontendFormController.Config;
 
 public class Emt {
 
 	// would be nice to get it from the maven build
 	private static final String EMT_VERSION = "0.3-SNAPSHOT";
-	
-	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-	public static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
-	public static SimpleDateFormat shortDf = new SimpleDateFormat("yyyyMMdd");
 
 	public static void main(String[] args) {
 		try {
-			Date startDate = shortDf.parse(args[0]);
-			Date endDate = shortDf.parse(args[1]);
+			Date startDate = Constants.shortDf.parse(args[0]);
+			Date endDate = Constants.shortDf.parse(args[1]);
 
 			loadConfig();
 			// add one day minus 1 second to end date to easily include end date
@@ -60,51 +53,52 @@ public class Emt {
 			Emt emt = new Emt();
 			emt.parseLog(startDate, endDate, emtLog);
 
-			// todo set hours, minutes, seconds of start and end dates to outer ranges of period
+			// todo set hours, minutes, seconds of start and end dates to outer
+			// ranges of period
 			Emt emtThisWeek = new Emt();
-		    c = Calendar.getInstance();
-		    c.setTime(new Date());
-		    int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-		    c.add(Calendar.DATE, - i + 1);
-		    Date start = c.getTime();
-		    c.add(Calendar.DATE, 6);
-		    Date end = c.getTime();
+			c = Calendar.getInstance();
+			c.setTime(new Date());
+			int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+			c.add(Calendar.DATE, -i + 1);
+			Date start = c.getTime();
+			c.add(Calendar.DATE, 6);
+			Date end = c.getTime();
 			emtThisWeek.parseLog(start, end, emtLog);
-			String thisWeekUptime = emtThisWeek.systemUptime(start, end) + " ("
-					+ df.format(start) + " - " + df.format(end) + ")";
+			String thisWeekUptime = emtThisWeek.systemUptime(start, end).calcPercentage() + " ("
+					+ Constants.df.format(start) + " - " + Constants.df.format(end) + ")";
 
 			Emt emtPreviousWeek = new Emt();
-		    c = Calendar.getInstance();
-		    c.setTime(new Date());
-		    i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-		    c.add(Calendar.DATE, -i - 7 + 1);
-		    start = c.getTime();
-		    c.add(Calendar.DATE, 6);
-		    end = c.getTime();
+			c = Calendar.getInstance();
+			c.setTime(new Date());
+			i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+			c.add(Calendar.DATE, -i - 7 + 1);
+			start = c.getTime();
+			c.add(Calendar.DATE, 6);
+			end = c.getTime();
 			emtPreviousWeek.parseLog(start, end, emtLog);
 			String previousWeekUptime = emtPreviousWeek
-					.systemUptime(start, end)
+					.systemUptime(start, end).calcPercentage()
 					+ " ("
-					+ df.format(start)
+					+ Constants.df.format(start)
 					+ " - "
-					+ df.format(end) + ")";
+					+ Constants.df.format(end) + ")";
 
 			Emt emtPreviousMonth = new Emt();
-		    c = Calendar.getInstance();
-		    c.setTime(new Date());
-		    c.set(Calendar.DAY_OF_MONTH, 1);
-		    c.add(Calendar.MONTH, -1);
-		    start = c.getTime();
-		    c.add(Calendar.MONTH, 1);
-		    c.add(Calendar.DAY_OF_YEAR, -1);
-		    end = c.getTime();
+			c = Calendar.getInstance();
+			c.setTime(new Date());
+			c.set(Calendar.DAY_OF_MONTH, 1);
+			c.add(Calendar.MONTH, -1);
+			start = c.getTime();
+			c.add(Calendar.MONTH, 1);
+			c.add(Calendar.DAY_OF_YEAR, -1);
+			end = c.getTime();
 			emtPreviousMonth.parseLog(start, end, emtLog);
 			String previousMonthUptime = emtPreviousMonth.systemUptime(start,
-					end)
+					end).calcPercentage()
 					+ " ("
-					+ df.format(start)
+					+ Constants.df.format(start)
 					+ " - "
-					+ df.format(end)
+					+ Constants.df.format(end)
 					+ ")";
 
 			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
@@ -121,14 +115,17 @@ public class Emt {
 		Properties prop = new Properties();
 		InputStream input = null;
 
-		Config c = null;
 		try {
-			input = new FileInputStream(Constants.RUNTIME_DIR + "/emt.properties");
+			input = new FileInputStream(Constants.RUNTIME_DIR
+					+ "/emt.properties");
 			prop.load(input);
 			clinicDays = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
-			clinicStart = Integer.parseInt(prop.getProperty("clinicStart", "8"));
+			clinicStart = Integer
+					.parseInt(prop.getProperty("clinicStart", "8"));
 			clinicStop = Integer.parseInt(prop.getProperty("clinicEnd", "17"));
 		} catch (IOException ex) {
+			System.out.println("Warning: " + Constants.RUNTIME_DIR
+					+ "/emt.properties not found. Assuming defaults");
 			ex.printStackTrace();
 		} finally {
 			if (input != null) {
@@ -143,18 +140,18 @@ public class Emt {
 
 	Date now = new Date();
 	String systemId = "";
-	static String clinicDays = "Mo,Tu,We,Th,Fr";
-	static int clinicStart = 800;
-	static int clinicStop = 1700;
-	int heartbeatCronjobFirstStartAtMinute = 0;
+	public static String clinicDays = "Mo,Tu,We,Th,Fr";
+	public static int clinicStart = 800;
+	public static int clinicStop = 1700;
 	int heartbeatCronjobIntervallInMinutes = 15;
+	int openmrsHeartbeatCronjobIntervallInMinutes = 15;
 
 	int startupCount = 0;
 	int shutdownCount = 0;
 	int startupsWithoutShutdowns = 0;
 	List<Startup> startups = new ArrayList<Startup>();
-	List<Heartbeat> heartbeats = new ArrayList<Heartbeat>();
-	List<OpenmrsHeartbeat> openmrsHeartbeats = new ArrayList<OpenmrsHeartbeat>();
+	List<Heartbeatable> heartbeats = new ArrayList<Heartbeatable>();
+	List<Heartbeatable> openmrsHeartbeats = new ArrayList<Heartbeatable>();
 
 	private void parseLog(Date startDate, Date endDate, String emtLog)
 			throws FileNotFoundException {
@@ -168,7 +165,7 @@ public class Emt {
 				String timestamp = "";
 				if (st.hasMoreTokens()) {
 					timestamp = st.nextToken();
-					if (inPeriod(startDate, endDate, timestamp)) {
+					if (Helper.inPeriod(startDate, endDate, timestamp)) {
 						// system id
 						if (st.hasMoreTokens()) {
 							systemId = st.nextToken();
@@ -197,9 +194,11 @@ public class Emt {
 								Heartbeat hb = new Heartbeat(timestamp, st);
 								heartbeats.add(hb);
 							} else if ("OPENMRS-HEARTBEAT".equals(type)) {
-								OpenmrsHeartbeat hb = new OpenmrsHeartbeat(timestamp, st);
+								OpenmrsHeartbeat hb = new OpenmrsHeartbeat(
+										timestamp, st);
 								openmrsHeartbeats.add(hb);
-							} else if ("EMT-INSTALL".equals(type) || "EMT-CONFIGURE".equals(type)) {
+							} else if ("EMT-INSTALL".equals(type)
+									|| "EMT-CONFIGURE".equals(type)) {
 
 							} else {
 								System.out.println("Unknown type '" + type
@@ -209,70 +208,11 @@ public class Emt {
 					}
 				}
 			} catch (Exception e) {
-				System.out.println("Error (" + e.getMessage()
-						+ ", " + e.getCause() + ") parsing line: " + line);
+				System.out.println("Error (" + e.getMessage() + ", "
+						+ e.getCause() + ") parsing line: " + line);
 				e.printStackTrace();
 			}
 		}
-	}
-
-	private boolean inPeriod(Date startDate, Date endDate, String line)
-			throws ParseException {
-		return inPeriod(startDate, endDate, sdf.parse(line));
-	}
-
-	private boolean inPeriod(Date startDate, Date endDate, Date date) {
-		return (startDate.before(date) && endDate.after(date));
-	}
-
-	private boolean inPeriod(Date startDate, Date endDate, Heartbeat hb) {
-		return inPeriod(startDate, endDate, hb.date);
-	}
-
-	private boolean duringClinic(Heartbeat hb) {
-		return duringClinic(hb.date);
-	}
-
-	private boolean duringClinic(Date date) {
-		Calendar c = Calendar.getInstance();
-		c.setTime(date);
-		boolean matchingDay = false;
-		switch (c.get(Calendar.DAY_OF_WEEK)) {
-		case Calendar.MONDAY:
-			if (clinicDays.contains("Mo"))
-				matchingDay = true;
-			break;
-		case Calendar.TUESDAY:
-			if (clinicDays.contains("Tu"))
-				matchingDay = true;
-			break;
-		case Calendar.WEDNESDAY:
-			if (clinicDays.contains("We"))
-				matchingDay = true;
-			break;
-		case Calendar.THURSDAY:
-			if (clinicDays.contains("Th"))
-				matchingDay = true;
-			break;
-		case Calendar.FRIDAY:
-			if (clinicDays.contains("Fr"))
-				matchingDay = true;
-			break;
-		case Calendar.SATURDAY:
-			if (clinicDays.contains("Sa"))
-				matchingDay = true;
-			break;
-		case Calendar.SUNDAY:
-			if (clinicDays.contains("Su"))
-				matchingDay = true;
-			break;
-		}
-
-		boolean matchingTime = false;
-		int time = Integer.parseInt("" + c.get(Calendar.HOUR_OF_DAY)
-				+ c.get(Calendar.MINUTE));
-		matchingTime = clinicStart <= time && clinicStop >= time;
-		return matchingDay && matchingTime;
 	}
 
 	private List<String> report(Date startDate, Date endDate,
@@ -287,11 +227,11 @@ public class Emt {
 		ss.add("\nPrimary Clinic Days: " + clinicDays);
 		ss.add("\nPrimary Clinic Hours: " + clinicStart + " - " + clinicStop);
 		ss.add("");
-		ss.add("\nStart date: " + df.format(startDate));
-		ss.add("\nEnd date: " + df.format(endDate) + " (including)");
+		ss.add("\nStart date: " + Constants.df.format(startDate));
+		ss.add("\nEnd date: " + Constants.df.format(endDate) + " (including)");
 		ss.add("");
 		ss.add("\nPercentage of system uptime (1): "
-				+ systemUptime(startDate, endDate));
+				+ systemUptime(startDate, endDate).calcPercentage());
 		ss.add("\n  This week: " + thisWeekUptime);
 		ss.add("\n  Last week: " + previousWeekUptime);
 		ss.add("\n  Last month: " + previousMonthUptime);
@@ -307,12 +247,17 @@ public class Emt {
 		ss.add("\nLowest amounts of free memory in MB (2): "
 				+ lowestFreeMemory());
 		ss.add("");
-		ss.add("\nPercentage of OpenMRS uptime (1): <to be implemented>");
-		ss.add("\nNumber of Encounters (3) - (4): " + (totalEncounters(false) - totalEncounters(true)) + " - " + totalEncounters(false));
-		ss.add("\nNumber of Obs (3) - (4): " + (totalObs(false) - totalObs(true)) + " - " + totalObs(false));
-		ss.add("\nNumber of users (3) - (4): " + (totalUsers(false) - totalUsers(true)) + " - " + totalUsers(false));
-		ss.add("\nLast local OpenMRS backup (5): "
-				+ lastOpenMRSBackup());
+		ss.add("\nPercentage of OpenMRS uptime (1): "
+				+ openmrsUptime(startDate, endDate).calcPercentage());
+		ss.add("\nNumber of Encounters (3) - (4): "
+				+ (totalEncounters(false) - totalEncounters(true)) + " - "
+				+ totalEncounters(false));
+		ss.add("\nNumber of Obs (3) - (4): "
+				+ (totalObs(false) - totalObs(true)) + " - " + totalObs(false));
+		ss.add("\nNumber of users (3) - (4): "
+				+ (totalUsers(false) - totalUsers(true)) + " - "
+				+ totalUsers(false));
+		ss.add("\nLast local OpenMRS backup (5): " + lastOpenMRSBackup());
 		ss.add("");
 		ss.add("\n____");
 		ss.add("");
@@ -331,27 +276,27 @@ public class Emt {
 
 	private int totalEncounters(boolean atStart) {
 		if (atStart && openmrsHeartbeats.size() > 0) {
-			return openmrsHeartbeats.get(0).totalEncounters;
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(0)).totalEncounters;
 		} else if (openmrsHeartbeats.size() > 1) {
-			return openmrsHeartbeats.get(openmrsHeartbeats.size() - 1).totalEncounters;
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).totalEncounters;
 		}
 		return -1;
 	}
 
 	private int totalObs(boolean atStart) {
 		if (atStart && openmrsHeartbeats.size() > 0) {
-			return openmrsHeartbeats.get(0).totalObs;
-		} else  if (openmrsHeartbeats.size() > 1) {
-			return openmrsHeartbeats.get(openmrsHeartbeats.size() - 1).totalObs;
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(0)).totalObs;
+		} else if (openmrsHeartbeats.size() > 1) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).totalObs;
 		}
 		return -1;
 	}
 
 	private int totalUsers(boolean atStart) {
 		if (atStart && openmrsHeartbeats.size() > 0) {
-			return openmrsHeartbeats.get(0).totalUsers;
-		} else  if (openmrsHeartbeats.size() > 1) {
-			return openmrsHeartbeats.get(openmrsHeartbeats.size() - 1).totalUsers;
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(0)).totalUsers;
+		} else if (openmrsHeartbeats.size() > 1) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).totalUsers;
 		}
 		return -1;
 	}
@@ -403,63 +348,24 @@ public class Emt {
 		document.close();
 	}
 
-	private String systemUptime(Date startDate, Date endDate) {
-		// count number of recorded heartbeats during clinic times
-		int heartBeatsDuringClinic = 0;
-		for (Heartbeat hb : heartbeats) {
-			if (inPeriod(startDate, endDate, hb) && duringClinic(hb)) {
-				heartBeatsDuringClinic++;
-			}
-		}
+	private Uptime systemUptime(Date startDate, Date endDate) {
 
-		// calculate number of expected heartbeats during clinic times
-		int expectedHeartbeats = 0;
-		Calendar date = Calendar.getInstance();
-		// round up to next time when next heartbeat is expected
-		// and simply ignore the few minutes before as we don't know
-		// what happened during this initial period
-		date.setTime(startDate);
-		int minutes = date.get(Calendar.MINUTE);
-		int nextCronjob = ((minutes / heartbeatCronjobIntervallInMinutes) + 1)
-				* heartbeatCronjobIntervallInMinutes;
-		date.set(Calendar.MINUTE, nextCronjob);
-		date.set(Calendar.SECOND, 0);
-		date.set(Calendar.MILLISECOND, 0);
-		Calendar end = Calendar.getInstance();
-		if (end.before(new Date())) {
-			// if specified end date is in future, take current time as end date
-			end.setTime(endDate);
-		}
-		while (date.before(end)) {
-			if (duringClinic(date.getTime())) {
-				expectedHeartbeats++;
-			}
-			date.add(Calendar.MINUTE, heartbeatCronjobIntervallInMinutes);
-		}
-		if (expectedHeartbeats > 0) {
-			double uptime = (double) heartBeatsDuringClinic
-					/ (double) expectedHeartbeats * 100;
-			BigDecimal bd = new BigDecimal(uptime);
-			bd = bd.setScale(2, RoundingMode.HALF_UP);
-			return "" + bd.doubleValue() + " %" + " (" + heartBeatsDuringClinic
-					+ "/" + expectedHeartbeats + "*100)";
-		} else {
-			return "Not a number" + " (" + heartBeatsDuringClinic + "/"
-					+ expectedHeartbeats + "*100)";
-		}
+		Uptime uptime = new Uptime();
+		uptime.calcHeartbearts(startDate, endDate, heartbeats, heartbeatCronjobIntervallInMinutes);
+		return uptime;
 	}
 
 	private String lowestFreeMemory() {
-		Collections.sort(heartbeats, new Comparator<Heartbeat>() {
-			public int compare(Heartbeat hb1, Heartbeat hb2) {
-				return ((Integer) hb1.freeMemory)
-						.compareTo((Integer) hb2.freeMemory);
+		Collections.sort(heartbeats, new Comparator<Heartbeatable>() {
+			public int compare(Heartbeatable hb1, Heartbeatable hb2) {
+				return ((Integer) ((Heartbeat) hb1).freeMemory)
+						.compareTo((Integer) ((Heartbeat) hb2).freeMemory);
 			}
 		});
 		String s = "";
-		s += heartbeats.size() > 0 ? heartbeats.get(0).freeMemory : "";
-		s += " " + (heartbeats.size() > 1 ? heartbeats.get(1).freeMemory : "");
-		s += " " + (heartbeats.size() > 2 ? heartbeats.get(2).freeMemory : "");
+		s += heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(0)).freeMemory : "";
+		s += " " + (heartbeats.size() > 1 ? ((Heartbeat) heartbeats.get(1)).freeMemory : "");
+		s += " " + (heartbeats.size() > 2 ? ((Heartbeat) heartbeats.get(2)).freeMemory : "");
 		return s;
 	}
 
@@ -470,30 +376,32 @@ public class Emt {
 			}
 		});
 		String s = "";
-		s += startups.size() > 0 ? sdf.format(startups.get(0).date) : "";
-		s += " " + (startups.size() > 1 ? sdf.format(startups.get(1).date) : "");
-		s += " " + (startups.size() > 2 ? sdf.format(startups.get(2).date) : "");
+		s += startups.size() > 0 ? Constants.sdf.format(startups.get(0).date) : "";
+		s += " "
+				+ (startups.size() > 1 ? Constants.sdf.format(startups.get(1).date) : "");
+		s += " "
+				+ (startups.size() > 2 ? Constants.sdf.format(startups.get(2).date) : "");
 		return s;
 	}
 
 	private String highestAverage5minLoads() {
-		Collections.sort(heartbeats, new Comparator<Heartbeat>() {
-			public int compare(Heartbeat hb1, Heartbeat hb2) {
-				return ((Double) hb1.loadAverage5Min)
-						.compareTo((Double) hb2.loadAverage5Min);
+		Collections.sort(heartbeats, new Comparator<Heartbeatable>() {
+			public int compare(Heartbeatable hb1, Heartbeatable hb2) {
+				return ((Double) ((Heartbeat) hb1).loadAverage5Min)
+						.compareTo((Double) ((Heartbeat) hb2).loadAverage5Min);
 			}
 		});
 		String s = "";
-		s += heartbeats.size() > 0 ? heartbeats.get(heartbeats.size() - 1).loadAverage5Min
+		s += heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(heartbeats.size() - 1)).loadAverage5Min
 				: "";
 		s += " "
-				+ (heartbeats.size() > 1 ? heartbeats
-						.get(heartbeats.size() - 2).loadAverage5Min : "");
+				+ (heartbeats.size() > 1 ? ((Heartbeat) heartbeats
+						.get(heartbeats.size() - 2)).loadAverage5Min : "");
 		s += " "
-				+ (heartbeats.size() > 2 ? heartbeats
-						.get(heartbeats.size() - 3).loadAverage5Min : "");
+				+ (heartbeats.size() > 2 ? ((Heartbeat) heartbeats
+						.get(heartbeats.size() - 3)).loadAverage5Min : "");
 		s += " ("
-				+ (heartbeats.size() > 0 ? heartbeats.get(0).numberProcessors
+				+ (heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(0)).numberProcessors
 						: "") + ")";
 		return s;
 	}
@@ -509,13 +417,19 @@ public class Emt {
 							.lastModified());
 				}
 			});
-			String s = allFiles[allFiles.length - 1].getName() + " ("
-					+ sdf.format(new Date(allFiles[allFiles.length - 1].lastModified()))
-					+ ")";
+			String s = allFiles[allFiles.length - 1].getName()
+					+ " ("
+					+ Constants.sdf.format(new Date(allFiles[allFiles.length - 1]
+							.lastModified())) + ")";
 			return s;
 		} else {
 			return "<not found>";
 		}
 	}
 
+	private Uptime openmrsUptime(Date startDate, Date endDate) {
+		Uptime uptime = new Uptime();
+		uptime.calcHeartbearts(startDate, endDate, openmrsHeartbeats, openmrsHeartbeatCronjobIntervallInMinutes);
+		return uptime;
+	}
 }

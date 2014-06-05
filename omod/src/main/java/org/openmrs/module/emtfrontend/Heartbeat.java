@@ -4,8 +4,8 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-public class Heartbeat {
-	public Date date = null;
+public class Heartbeat implements Heartbeatable {
+	private Date date = null;
 	public int numberProcessors = -1;
 	public double loadAverage1Min = -1;
 	public double loadAverage5Min = -1;
@@ -15,7 +15,7 @@ public class Heartbeat {
 
 	public Heartbeat(String timestamp, StringTokenizer st)
 			throws ParseException {
-		date = Emt.sdf.parse(timestamp);
+		date = Constants.sdf.parse(timestamp);
 		if (st.hasMoreTokens())
 			loadAverage1Min = Double.parseDouble(st.nextToken());
 		if (st.hasMoreTokens())
@@ -30,4 +30,7 @@ public class Heartbeat {
 			freeMemory = Integer.parseInt(st.nextToken());
 	}
 
+	public Date date() {
+		return this.date;
+	}
 }
