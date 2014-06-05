@@ -14,6 +14,9 @@ public class OpenmrsHeartbeat implements Heartbeatable {
 	public int totalObs = -1;
 	public int totalUsers = -1;
 	public int responding = -1;
+	public int activePatients = -1;
+	public int newPatients = -1;
+	public int visits = -1;
 	
 	public OpenmrsHeartbeat(String timestamp, StringTokenizer st)
 			throws ParseException {
@@ -44,6 +47,25 @@ public class OpenmrsHeartbeat implements Heartbeatable {
 			String s = st.nextToken();
 			if (s != null && !"".equals(s))
 				totalUsers = Integer.parseInt(s);
+		}
+		if (st.hasMoreTokens()) {
+			// last backup is no longer used
+			st.nextToken();
+		}
+		if (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			if (s != null && !"".equals(s))
+				activePatients = Integer.parseInt(s);
+		}
+		if (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			if (s != null && !"".equals(s))
+				newPatients = Integer.parseInt(s);
+		}
+		if (st.hasMoreTokens()) {
+			String s = st.nextToken();
+			if (s != null && !"".equals(s))
+				visits = Integer.parseInt(s);
 		}
 	}
 

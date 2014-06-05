@@ -213,7 +213,9 @@ public class Emt {
 		
 		Uptime uptime = systemUptime(startDate, endDate);
 		Uptime openmrsUptime = openmrsUptime(startDate, endDate);
-		
+		if (openmrsUptime.percentage > uptime.percentage) {
+			openmrsUptime = uptime;
+		}
 		List<String> ss = new ArrayList<String>();
 		ss.add("Current date and time: " + new Date());
 		ss.add("");
@@ -253,6 +255,15 @@ public class Emt {
 		ss.add("\nNumber of users (3) - (4): "
 				+ (totalUsers(false) - totalUsers(true)) + " - "
 				+ totalUsers(false));
+		ss.add("\nNumber of active patients (3) - (4): "
+				+ (totalActivePatients(false) - totalActivePatients(true)) + " - "
+				+ totalActivePatients(false));
+		ss.add("\nNumber of new patients (3) - (4): "
+				+ (totalNewPatients(false) - totalNewPatients(true)) + " - "
+				+ totalNewPatients(false));
+		ss.add("\nNumber of visits (3) - (4): "
+				+ (totalVisits(false) - totalVisits(true)) + " - "
+				+ totalVisits(false));
 		ss.add("\nLast local OpenMRS backup (5): " + lastOpenMRSBackup());
 		ss.add("");
 		ss.add("\n____");
@@ -293,6 +304,33 @@ public class Emt {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(0)).totalUsers;
 		} else if (openmrsHeartbeats.size() > 1) {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).totalUsers;
+		}
+		return -1;
+	}
+
+	private int totalActivePatients(boolean atStart) {
+		if (atStart && openmrsHeartbeats.size() > 0) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(0)).activePatients;
+		} else if (openmrsHeartbeats.size() > 1) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).activePatients;
+		}
+		return -1;
+	}
+
+	private int totalNewPatients(boolean atStart) {
+		if (atStart && openmrsHeartbeats.size() > 0) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(0)).newPatients;
+		} else if (openmrsHeartbeats.size() > 1) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).newPatients;
+		}
+		return -1;
+	}
+
+	private int totalVisits(boolean atStart) {
+		if (atStart && openmrsHeartbeats.size() > 0) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(0)).visits;
+		} else if (openmrsHeartbeats.size() > 1) {
+			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).visits;
 		}
 		return -1;
 	}

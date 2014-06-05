@@ -63,4 +63,10 @@ MYSQL_STATUS="$NUMBER_ENCOUNTERS;$NUMBER_OBS;$NUMBER_USERS"
 # backup status
 BACKUP_STATUS=`ls -tr1 /var/backups/OpenMRS | tail -1`
 
-echo "$NOW;$SYSTEM_ID;OPENMRS-HEARTBEAT;$OPENMRS_STATUS;$MYSQL_STATUS;$BACKUP_STATUS">> $LOG
+# MoH data quality checks
+NUMBER_ACTIVE_PATIENTS=`mysql -u$DB_USER -p$DB_PASS $DB_NAME -s -N -e "select count(distinct person_id) from obs o inner join patient_program pp on o.person_id = pp.patient_id inner join orders ord on o.person_id = ord.patient_id where o.concept_id = 1811 and program_id = 2 and ord.concept_id in (select distinct concept_id from concept_set where concept_set = 1085);"`
+NUMBER_NEW_PATIENTS=`mysql -u$DB_USER -p$DB_PASS $DB_NAME -s -N -e "select count(*) from encounter where encounter_type in (1,3)"`
+NUMBER_VISITS=`mysql -u$DB_USER -p$DB_PASS $DB_NAME -s -N -e "select count(*) from encounter where encounter_type in (2,4)"`
+MOH_STATUS="$NUMBER_ACTIVE_PATIENTS;$NUMBER_NEW_PATIENTS;$NUMBER_VISITS"
+
+echo "$NOW;$SYSTEM_ID;OPENMRS-HEARTBEAT;$OPENMRS_STATUS;$MYSQL_STATUS;$BACKUP_STATUS;$MOH_STATUS">> $LOG
