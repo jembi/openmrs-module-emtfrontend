@@ -6,6 +6,15 @@ CONFIG=$HOME/emt.properties
 SYSTEM_ID=`hostname`-`ifconfig eth0 | grep HWaddr | awk '{ print $NF}' | sed 's/://g'`
 NOW=`date +%Y%m%d-%H%M%S`
 
+# make sure EMT is installed under user hc-admin (required by OpenMRS EMT Frontend module)
+USER=`whoami`
+if [ "$USER" != "hc-admin" ]; then
+  echo ""
+  echo "ERROR: EMT needs to be installed under user hc-admin. Please change user and install again."
+  echo "       (This is required by the OpenMRS module EMT Frontend)"
+  exit 1 
+fi
+
 # remove old cronjobs
 crontab -l | grep -v heartbeat.sh | crontab -
 crontab -l | grep -v openmrs-heartbeat.sh | crontab -
