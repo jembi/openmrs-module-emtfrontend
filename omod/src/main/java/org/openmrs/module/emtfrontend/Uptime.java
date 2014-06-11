@@ -49,6 +49,9 @@ public class Uptime {
 			BigDecimal bd = new BigDecimal(uptime);
 			bd = bd.setScale(2, RoundingMode.HALF_UP);
 			percentage = bd.doubleValue();
+			if (percentage > 100) {
+				percentage = 100;
+			}
 		}
 	}
 
