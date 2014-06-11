@@ -67,7 +67,7 @@ public class Helper {
 																		// zeros
 		// unsure if this simple time range check works in all cases
 		int time = Integer.parseInt(hours + minutes);
-		matchingTime = Emt.clinicStart <= time && Emt.clinicStop >= time;
+		matchingTime = Emt.clinicStart <= time && Emt.clinicStop > time;
 		return matchingDay && matchingTime;
 	}
 
