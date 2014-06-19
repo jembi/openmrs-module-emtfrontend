@@ -4,7 +4,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>emtfrontend</artifactId>
-	<!-- Adjust version info in class Emt as well! -->
+	<!-- Adjust version info in class Constants and script configure.sh as well! -->
 	<version>0.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>EMR Monitoring Tool Frontend</name>

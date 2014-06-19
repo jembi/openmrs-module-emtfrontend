@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 public class Constants {
 
 	// would be nice to get it from the maven build
-	public static final String EMT_VERSION = "0.4-SNAPSHOT";
+	public static final String EMT_VERSION = "0.5-SNAPSHOT";
 
 	// for log file and properties
 	public static String RUNTIME_DIR = "/home/hc-admin";
