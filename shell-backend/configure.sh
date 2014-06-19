@@ -24,7 +24,7 @@ crontab -l | grep -v startup-hook.sh | crontab -
 (crontab -l ; echo "2,17,32,47 * * * * $INSTALL_DIR/openmrs-heartbeat.sh") | crontab -
 (crontab -l ; echo "@reboot $INSTALL_DIR/startup-hook.sh") | crontab -
 
-echo "$NOW;$SYSTEM_ID;EMT-INSTALL;1.0" >> $LOG
+echo "$NOW;$SYSTEM_ID;EMT-INSTALL;0.5" >> $LOG
 
 # create properties file if necessary
 if [[ ! -f $CONFIG ]]; then
