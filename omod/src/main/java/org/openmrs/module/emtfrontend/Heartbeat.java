@@ -16,18 +16,22 @@ public class Heartbeat implements Heartbeatable {
 	public Heartbeat(String timestamp, StringTokenizer st)
 			throws ParseException {
 		date = Constants.sdf.parse(timestamp);
-		if (st.hasMoreTokens())
-			loadAverage1Min = Double.parseDouble(st.nextToken());
-		if (st.hasMoreTokens())
-			loadAverage5Min = Double.parseDouble(st.nextToken());
-		if (st.hasMoreTokens())
-			loadAverage15Min = Double.parseDouble(st.nextToken());
-		if (st.hasMoreTokens())
-			numberProcessors = Integer.parseInt(st.nextToken());
-		if (st.hasMoreTokens())
-			totalMemory = Integer.parseInt(st.nextToken());
-		if (st.hasMoreTokens())
-			freeMemory = Integer.parseInt(st.nextToken());
+		try {
+			if (st.hasMoreTokens())
+				loadAverage1Min = Double.parseDouble(st.nextToken());
+			if (st.hasMoreTokens())
+				loadAverage5Min = Double.parseDouble(st.nextToken());
+			if (st.hasMoreTokens())
+				loadAverage15Min = Double.parseDouble(st.nextToken());
+			if (st.hasMoreTokens())
+				numberProcessors = Integer.parseInt(st.nextToken());
+			if (st.hasMoreTokens())
+				totalMemory = Integer.parseInt(st.nextToken());
+			if (st.hasMoreTokens())
+				freeMemory = Integer.parseInt(st.nextToken());
+		} catch (NumberFormatException p) {
+			p.printStackTrace();
+		}
 	}
 
 	public Date date() {
