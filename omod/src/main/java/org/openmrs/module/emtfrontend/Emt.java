@@ -32,6 +32,12 @@ public class Emt {
 		try {
 			Date startDate = Constants.shortDf.parse(args[0]);
 			Date endDate = Constants.shortDf.parse(args[1]);
+			if (startDate.after(endDate)) {
+				// swap start and end date if start date after end date
+				Date tmp = startDate;
+				startDate = endDate;
+				endDate = tmp;
+			}
 
 			loadConfig();
 			// add one day minus 1 second to end date to easily include end date
