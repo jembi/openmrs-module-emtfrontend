@@ -8,6 +8,26 @@ It contains three different components, which are all stored in the project open
 3. OpenMRS module
 
 
+Development environment
+
+MacOS X (Linux should work with minimal adjustments; Windows will require a Cygwin environment with most likely more changes)
+JDK 6
+OpenMRS 1.6.5
+MySQL
+
+
+Runtime environment 
+
+The Runtime environment is defined by the Rwanda MOH image (Ubuntu 12.04 with customized OpenMRS installation) with filename dell-poweredge-r210-pretest10.fsa.
+
+Preparation of MOH image
+System passwords for admin and users (moh-admin, dc-admin, hc-admin) are unknown, so they need to be set to known values. As long as there is access to the boot process (either by the physical machine the image is installed on or by using a virtual machine), all user passwords can be reset with 'default Ubuntu ways'.
+
+MySQL passwords could be resetted as well, but as the openmrs-runtime.properties contains the openmrs_user user, this is not required. 
+
+For OpenMRS access the scheduler is configured as well in the properties file (user admin), so there is no need to reset the OpenMRS passwords either. But if desired, the hashed values in the DB could also be changed (UPDATE users SET password="8fe8098a8eaa08489f7bd362b9675330e28bdd8c9efb196999b50dcb48cc6d29d03d5cdd55d7bce6bcba74da8083279258d0fc5a52608b82c35c63c35d6617ea" WHERE username="admin"; UPDATE users SET salt="bb3388da9cb00565cd541b01471258e716e8482cb996555d85e0176e1b5463624a7560ef516d3b33a84b4f27bf1d1f21a5333840dd081a3d30f747f51f737883" WHERE username="admin";).
+
+
 Shell data collection
 
 The shell data collection is responsible for logging relevant system and OpenMRS uptime and resource monitoring events into the EMT log file. This is done by multiple dedicated shell scripts. These scripts are invoked by different cronjobs. 
@@ -50,7 +70,7 @@ $NOW;$SYSTEM_ID;OPENMRS-HEARTBEAT;$OPENMRS_STATUS;$NUMBER_ENCOUNTERS;$NUMBER_OBS
 Releasing a new version
 
 To release a new version both backend (shell) and frontend (OpenMRS module) needs to be packaged separately. (I guess there are ways to make the Maven spit out the shell backend, but didn't figure it out). Keep the order of these steps as one builds upon the results of the previous step:
-1. Adjust version numbers
+1. Adjust version numbers (in ./pom.xml, ./omod/pom.xml, ./api/pom.xml, ./shrink-omod.sh)
 2. Run top level pom.xml to create an ordinary OpenMRS module for the EMT frontend (and to compile the class files for step #4). The omod can be found under ./omod/target/emtfrontend...
 3. Run shrink-omod.sh to strip down the 10 MB Apache PDFbox of the omod to the bare required minimum (optional but highly required as it speeds up the deployment of the omod)
 4. Run create-shell-backend-installation-package.sh to create the file ./install.sh. This install.sh is used to install/update the shell-backend and besides the installation logic contains (!) the java binaries wrapped in a TGZ part.
@@ -62,7 +82,7 @@ Installation process
 
 The installation process itself is straight forward. But the shell backend assumes it is installed on a 'default' MOH server in Rwanda (mainly for the location of the openmrs-runtime.properties and the existance of the user hc-admin). With minimal changes it is possible to install the EMT on ordinary Ubuntu systems, but this is not part of a default installation.
 
-Once the environment fits, running the shell script install.sh installs the backend and the omod can be deployed through OpenMRS ways. Now the system needs to collect some data, before any useful report could be generated.
+Once the environment fits, running the shell script install.sh installs the backend and the omod can be deployed through OpenMRS ways. Now the system needs to collect some data, before any useful report could be generated./
 
 
 Additional stuff
