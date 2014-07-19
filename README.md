@@ -13,4 +13,4 @@ The OpenMRS module is a 'mavenized' package and thus can be created through the 
 
 The shell-backend package is created by a bash script and therefore requires a bash environment on the development system (currently only tested with MacOS, but Linux or even a cygwin environment should work with minimal adjustments) (via create-shell-backend-installation-package.sh)
 
-Additional documentation can be found on the PIH Confluence Wiki.
+Additional documentation can be found on the PIH Confluence Wiki: http://wiki.pih-emr.org/pages/viewpage.action?pageId=6127786
