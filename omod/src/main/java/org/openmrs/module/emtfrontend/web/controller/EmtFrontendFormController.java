@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,8 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Location;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.emtfrontend.Constants;
 import org.openmrs.module.emtfrontend.Emt;
+import org.openmrs.util.OpenmrsConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -156,6 +160,78 @@ public class EmtFrontendFormController {
 			if (fileInputStream != null)
 				fileInputStream.close();
 		}
+	}
+
+	private void returnCsv(HttpServletResponse response, File csvFile,
+			String filenameToReturn) throws FileNotFoundException, IOException {
+		response.setContentType("application/csv");
+		response.addHeader("Content-Disposition", "attachment; filename="
+				+ filenameToReturn);
+		response.setContentLength((int) csvFile.length());
+
+		FileInputStream fileInputStream = null;
+		OutputStream responseOutputStream = null;
+		try {
+			fileInputStream = new FileInputStream(csvFile);
+			responseOutputStream = response.getOutputStream();
+			int bytes;
+			while ((bytes = fileInputStream.read()) != -1) {
+				responseOutputStream.write(bytes);
+			}
+		} finally {
+			if (fileInputStream != null)
+				fileInputStream.close();
+		}
+	}
+
+	@RequestMapping(value = "/module/emtfrontend/emtfrontendHmisExport.form", method = RequestMethod.GET)
+	private String showHmisExport() {
+		return "/module/emtfrontend/emtfrontendHmisExport";
+	}
+
+	@RequestMapping(value = "/module/emtfrontend/exportHmisCsv.form", method = RequestMethod.GET)
+	private void exportHmisCsv(HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			SimpleDateFormat input = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat output = new SimpleDateFormat("yyyyMM");
+
+			String date = request.getParameter("startDate");
+			log.info(date);
+
+			// get temp file just to get the unique name
+			File f = File.createTempFile("temp", null);
+			String tempFilename = f.getAbsolutePath();
+			f.delete();
+
+			String defaultLocationId = Context.getUserContext().getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
+			String fosaid = "Unable to obtain FOSAID";
+			if (defaultLocationId != null && !"".equals(defaultLocationId)) {
+				Location l = Context.getLocationService().getLocation(Integer.parseInt(defaultLocationId));
+				String locationDescription = l.getDescription();
+				fosaid = locationDescription.split(":")[1].trim().split(" ")[0].trim();		
+			}
+			log.info(fosaid);
+			invokeNormalHmisExport(output.format(input.parse(date)),
+					Constants.RUNTIME_DIR + "/emt.log", fosaid,
+					tempFilename);
+
+			File csvFile = new File(tempFilename);
+			// send back as PDF via HTTP
+			returnCsv(
+					response,
+					csvFile,
+					"hmis-" + output.format(input.parse(date)));
+			csvFile.delete();
+		} catch (Exception e) {
+			log.error(e);
+		}
+	}
+
+	private void invokeNormalHmisExport(String date, String log, String fosaid,
+			String tempFilename) {
+		String[] args = { date, log, fosaid, tempFilename };
+		Emt.main(args);
 	}
 
 	/**

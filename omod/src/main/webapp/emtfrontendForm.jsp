@@ -23,9 +23,9 @@
 </form>
 </table>
 
-<br/>
+<br/><br/>
 Note: A PDF file is generated -without any progress indication- and returned to your browser.
-<br/>
+<br/><br/>
 Caution: No validation for input and error reporting of output on this page yet.
  
 <%@ include file="/WEB-INF/template/footer.jsp"%>

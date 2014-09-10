@@ -47,6 +47,7 @@ public class AdminList extends AdministrationSectionExt {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		
+		map.put("module/emtfrontend/emtfrontendHmisExport.form", "emtfrontend.hmisexport");
 		map.put("module/emtfrontend/emtfrontendLink.form", "emtfrontend.generate");
 		map.put("module/emtfrontend/emtfrontendConfig.form", "emtfrontend.config");
 		
