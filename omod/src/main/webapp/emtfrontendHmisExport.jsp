@@ -19,7 +19,9 @@
 </table>
 
 <br/><br/>
-Note: A CSV file is generated -without any progress indication- and returned to your browser.
+Notes: For complete and accurate HMIS data, a past month need to be chosen. If the current month is selected, data elements might be missing. 
+<br/><br/>
+A CSV file is generated -without any progress indication- and returned to your browser.
 <br/><br/>
 Caution: No validation for input and error reporting of output on this page yet.
 <br/><br/>

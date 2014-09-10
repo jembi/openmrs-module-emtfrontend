@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -212,7 +211,7 @@ public class EmtFrontendFormController {
 				fosaid = locationDescription.split(":")[1].trim().split(" ")[0].trim();		
 			}
 			log.info(fosaid);
-			invokeNormalHmisExport(output.format(input.parse(date)),
+			invokeNormalHmisExport(output.format(input.parse(date)) + "02",
 					Constants.RUNTIME_DIR + "/emt.log", fosaid,
 					tempFilename);
 
@@ -231,7 +230,7 @@ public class EmtFrontendFormController {
 	private void invokeNormalHmisExport(String date, String log, String fosaid,
 			String tempFilename) {
 		String[] args = { date, log, fosaid, tempFilename };
-		Emt.main(args);
+		Emt.hmisExport(args);
 	}
 
 	/**

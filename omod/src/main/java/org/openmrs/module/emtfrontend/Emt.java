@@ -3,8 +3,12 @@ package org.openmrs.module.emtfrontend;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -125,6 +129,64 @@ public class Emt {
 			String emtPdfOutput = args[3];
 			emt.generatePdfReport(s, startDate, endDate, emtPdfOutput);
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void hmisExport(String[] args) {
+		try {
+			Date date = Constants.shortDf.parse(args[0]);
+
+			loadConfig();
+			// add one day minus 1 second to end date to easily include end date
+			// in
+			// calculations
+			Calendar c = Calendar.getInstance();
+			c = Calendar.getInstance();
+			c.setTime(date);
+			c.set(Calendar.DAY_OF_MONTH, 1);
+//			c.add(Calendar.MONTH, -1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			Date startDate = c.getTime();
+			c.add(Calendar.MONTH, 1);
+			c.add(Calendar.DAY_OF_YEAR, -1);
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
+			Date endDate = c.getTime();
+
+			String emtLog = args[1];
+			Emt emt = new Emt();
+			emt.parseLog(startDate, endDate, emtLog);
+
+			String emtCsvOutput = args[3];
+			String fosaidLocation = args[2];
+			emt.generateHmisCsvExport(startDate, endDate, fosaidLocation, emtCsvOutput);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void generateHmisCsvExport(Date startDate, Date endDate,
+			String fosaidLocation, String emtCsvOutput) {
+		try {
+			OutputStream os = new FileOutputStream(emtCsvOutput);
+			PrintWriter w = new PrintWriter(os);
+			SimpleDateFormat output = new SimpleDateFormat("yyyyMM");
+			String period = output.format(startDate);
+			w.println("Server uptime percent," + period + "," + fosaidLocation + "," + systemUptime(startDate, endDate).print().split(" ")[0]);
+			w.println("Server system starts," + period + "," + fosaidLocation + "," + startupCount);
+			w.println("Server crashes," + period + "," + fosaidLocation + "," + startupsWithoutShutdowns);
+			w.close();
+			os.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
