@@ -21,7 +21,7 @@ if [ ! -d $EMT_DIR ]; then
 mkdir $EMT_DIR
 fi
 
-if [ -f $EMT_MAIN_CONFIG ]; then
+if [ ! -f $EMT_MAIN_CONFIG ]; then
 cat <<EOF > $EMT_MAIN_CONFIG
 openmrs_app_name=$OPENMRS_APP_NAME
 openmrs_data_directory=$OPENMRS_DATA_DIR
@@ -33,7 +33,6 @@ echo "INFO: You can change the provided configurations by editing: $EMT_MAIN_CON
 echo ""
 fi
 
-if [ -f $EMT_MAIN_CONFIG ]; then
 OMRS_APP_NAME=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_app_name' | tail -n 1 | cut -d "=" -f2-`
 OMRS_DATA_DIR=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_data_directory' | tail -n 1 | cut -d "=" -f2-`
 OMRS_BACKUP_DIR=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_backups_directory' | tail -n 1 | cut -d "=" -f2-`
@@ -50,5 +49,3 @@ mkdir $OMRS_DATA_DIR/EmrMonitoringTool
 fi
 bash $EMT_DIR/configure.sh $EMT_DIR $OMRS_DATA_DIR
 
-
-fi
