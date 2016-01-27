@@ -73,6 +73,12 @@ nb-configuration.xml
 /webapp/src/main/webapp/WEB-INF/module_messages*
 #############
 
+### OS X ###
+.DS_Store
+omod/.DS_Store
+api/.DS_Store
+#############
+
 ### For this module ###
 install.sh
 target/

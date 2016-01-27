@@ -10,17 +10,6 @@ NOW=`date +%Y%m%d-%H%M%S`
 # make sure EMT is installed under an admin user
 USER=`whoami`
 
-if groups $USER | grep -q -w admin; 
-then 
-    echo "Current user Is admin... Proceeding the installation..."; 
-else 
-    echo "Current user is Not admin"; 
-    echo ""
-  	echo "ERROR: EMT needs to be installed under an administrator user account. Please change user and install again."
-  	echo ""
-  	exit 1 
-fi
-
 # remove old cronjobs
 crontab -l | grep -v heartbeat.sh | crontab -
 crontab -l | grep -v openmrs-heartbeat.sh | crontab -
