@@ -11,7 +11,7 @@ public class Constants {
 	public static final String EMT_VERSION = "0.5-SNAPSHOT";
 
 	// for log file and properties
-	public static String RUNTIME_DIR = OpenmrsUtil.getApplicationDataDirectory() + File.separator + "EmrMonitoringTool";
+	public static String RUNTIME_DIR = OpenmrsUtil.getApplicationDataDirectory() + "EmrMonitoringTool";
 	public static String INSTALL_DIR = System.getProperty("user.home") + File.separator + "EmrMonitoringTool";
 	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	public static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");

@@ -51,7 +51,7 @@ public class EmtFrontendFormController {
 
 	@RequestMapping(value = "/module/emtfrontend/emtfrontendConfig.form", method = RequestMethod.GET)
 	private String showConfig(ModelMap model) {
-		model.addAttribute("emrConfig", OpenmrsUtil.getApplicationDataDirectory() + File.separator + "EmrMonitoringTool" + File.separator + "emt.properties");
+		model.addAttribute("emrConfig", OpenmrsUtil.getApplicationDataDirectory() + "EmrMonitoringTool" + File.separator + "emt.properties");
 		return "/module/emtfrontend/emtfrontendConfig";
 	}
 
