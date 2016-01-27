@@ -1,18 +1,24 @@
 #!/bin/bash
 
-INSTALL_DIR=$HOME/EmrMonitoringTool
-LOG=$HOME/emt.log
-CONFIG=$HOME/emt.properties
+#$1 contains emt backend directory and $2 openmrs data directory
+INSTALL_DIR=$1
+LOG=$2/EmrMonitoringTool/emt.log
+CONFIG=$2/EmrMonitoringTool/emt.properties
 SYSTEM_ID=`hostname`-`ifconfig eth0 | grep HWaddr | awk '{ print $NF}' | sed 's/://g'`
 NOW=`date +%Y%m%d-%H%M%S`
 
-# make sure EMT is installed under user hc-admin (required by OpenMRS EMT Frontend module)
+# make sure EMT is installed under an admin user
 USER=`whoami`
-if [ "$USER" != "hc-admin" ]; then
-  echo ""
-  echo "ERROR: EMT needs to be installed under user hc-admin. Please change user and install again."
-  echo "       (This is required by the OpenMRS module EMT Frontend)"
-  exit 1 
+
+if groups $USER | grep -q -w admin; 
+then 
+    echo "Current user Is admin... Proceeding the installation..."; 
+else 
+    echo "Current user is Not admin"; 
+    echo ""
+  	echo "ERROR: EMT needs to be installed under an administrator user account. Please change user and install again."
+  	echo ""
+  	exit 1 
 fi
 
 # remove old cronjobs
@@ -45,7 +51,8 @@ echo "           If this does NOT match the current real time, please report thi
 echo "           (Any difference of more than 5 minutes)"
 
 # Check write permission for tomcat6 in modules directory
-MODULES_OWNER=`stat -c '%U' /usr/share/tomcat6/.OpenMRS/modules | tail`
+# TODO remove this check if proved un-necessary
+MODULES_OWNER=`stat -c '%U' $2/modules | tail`
 if [ "$MODULES_OWNER" != "tomcat6" ]; then
   echo ""
   echo "WARNING: OpenMRS modules most likely can NOT be uploaded with OpenMRS!" 

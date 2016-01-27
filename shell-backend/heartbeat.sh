@@ -1,8 +1,15 @@
 #!/bin/bash
 
 PATH=$PATH:/sbin
+EMT_DIR=$HOME/EmrMonitoringTool
+EMT_MAIN_CONFIG=$EMT_DIR/.emt-config.properties
+OMRS_DATA_DIR=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_data_directory' | tail -n 1 | cut -d "=" -f2-`
+LOG=$OMRS_DATA_DIR/EmrMonitoringTool/emt.log
 
-LOG=$HOME/emt.log
+if [ ! -f $LOG ]; then
+echo "ERROR: $LOG must exist to proceed, make sure you successfully run improved-installation.sh first"
+exit 1
+fi
 
 SYSTEM_ID=`hostname`-`ifconfig eth0 | grep HWaddr | awk '{ print $NF}' | sed 's/://g'`
 NOW=`date +%Y%m%d-%H%M%S`

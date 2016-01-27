@@ -28,6 +28,6 @@
 </table>
 
 <br/>
-Note: Config is stored in file /home/hc-admin/emt.properties
+Note: Configurations are stored in file ${emrConfig}
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>

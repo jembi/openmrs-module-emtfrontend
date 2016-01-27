@@ -1,13 +1,27 @@
 #!/bin/bash
 
+EMT_DIR=$HOME/EmrMonitoringTool
+EMT_MAIN_CONFIG=$EMT_DIR/.emt-config.properties
+
+if [ ! -f $EMT_MAIN_CONFIG ]; then
+echo "ERROR: $EMT_MAIN_CONFIG must exist to proceed, make sure you successfully run improved-installation.sh first"
+exit 1
+fi
+
 PATH=$PATH:/usr/bin:/sbin
 BASEDIR=$(dirname $0)
+OMRS_DATA_DIR=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_data_directory' | tail -n 1 | cut -d "=" -f2-`
+OMRS_APP_NAME=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_app_name' | tail -n 1 | cut -d "=" -f2-`
+LOG=$OMRS_DATA_DIR/EmrMonitoringTool/emt.log
 
-LOG=$HOME/emt.log
+if [ ! -f $LOG ]; then
+echo "ERROR: $LOG must exist to proceed, make sure you successfully run improved-installation.sh first"
+exit 1
+fi
 
-OPENMRS_PROP_FILE=/usr/share/tomcat6/.OpenMRS/openmrs-runtime.properties
+OPENMRS_PROP_FILE=$OMRS_DATA_DIR/$OMRS_APP_NAME-runtime.properties
 # Check runtime properties file exists
-if ! [ -e "$OPENMRS_PROP_FILE" ]; then
+if [ ! -f $OPENMRS_PROP_FILE ]; then
   echo "Specified OpenMRS runtime properties file does not exist"
   exit 1
 fi
@@ -21,7 +35,7 @@ OPENMRS_PASS==`sed '/^\#/d' "$OPENMRS_PROP_FILE" | grep 'scheduler.password' | t
 
 # Check properties could be read
 if [ -z $DB_USER ] || [ -z $DB_PASS ] || [ -z $DB_URL ] || [ -z OPENMRS_USER ] || [ -z OPENMRS_PASS ]; then
-  echo "Unable tp read OpenMRS runtime properties"
+  echo "Unable to read OpenMRS runtime properties"
   exit 1
 fi
 
@@ -32,7 +46,7 @@ else
   DB_NAME="openmrs"
 fi
 
-OPENMRS_URL=https://localhost/openmrs
+OPENMRS_URL=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_url' | tail -n 1 | cut -d "=" -f2-`
 
 SYSTEM_ID=`hostname`-`ifconfig eth0 | grep HWaddr | awk '{ print $NF}' | sed 's/://g'`
 NOW=`date +%Y%m%d-%H%M%S`
@@ -61,7 +75,8 @@ NUMBER_USERS=`mysql -u$DB_USER -p$DB_PASS $DB_NAME -s -N -e "select count(*) fro
 MYSQL_STATUS="$NUMBER_ENCOUNTERS;$NUMBER_OBS;$NUMBER_USERS"
 
 # backup status
-BACKUP_STATUS=`ls -tr1 /var/backups/OpenMRS | tail -1`
+OMRS_BACKUP_DIR=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_backups_directory' | tail -n 1 | cut -d "=" -f2-`
+BACKUP_STATUS=`ls -tr1 $OMRS_BACKUP_DIR | tail -1`
 
 # MoH data quality checks
 NUMBER_ACTIVE_PATIENTS=`mysql -u$DB_USER -p$DB_PASS $DB_NAME -s -N -e "select count(distinct person_id) from obs o inner join patient_program pp on o.person_id = pp.patient_id inner join orders ord on o.person_id = ord.patient_id where o.concept_id = 1811 and program_id = 2 and ord.concept_id in (select distinct concept_id from concept_set where concept_set = 1085);"`

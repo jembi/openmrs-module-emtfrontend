@@ -35,7 +35,9 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.emtfrontend.Constants;
 import org.openmrs.module.emtfrontend.Emt;
 import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,7 +50,8 @@ public class EmtFrontendFormController {
 	protected final Log log = LogFactory.getLog(getClass());
 
 	@RequestMapping(value = "/module/emtfrontend/emtfrontendConfig.form", method = RequestMethod.GET)
-	private String showConfig() {
+	private String showConfig(ModelMap model) {
+		model.addAttribute("emrConfig", OpenmrsUtil.getApplicationDataDirectory() + File.separator + "EmrMonitoringTool" + File.separator + "emt.properties");
 		return "/module/emtfrontend/emtfrontendConfig";
 	}
 
