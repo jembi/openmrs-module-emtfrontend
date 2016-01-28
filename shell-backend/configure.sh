@@ -1,4 +1,11 @@
 #!/bin/bash
+if [ "$#" -ne 2 ]; then
+echo "Illegal number of parameters"
+echo ""
+echo "Usage example: configure.sh $HOME/EmrMonitoringTool /val/lib/OpenMRS"
+echo ""
+exit 1
+fi
 
 #$1 contains emt backend directory and $2 openmrs data directory
 INSTALL_DIR=$1
@@ -6,9 +13,6 @@ LOG=$2/EmrMonitoringTool/emt.log
 CONFIG=$2/EmrMonitoringTool/emt.properties
 SYSTEM_ID=`hostname`-`ifconfig eth0 | grep HWaddr | awk '{ print $NF}' | sed 's/://g'`
 NOW=`date +%Y%m%d-%H%M%S`
-
-# make sure EMT is installed under an admin user
-USER=`whoami`
 
 # remove old cronjobs
 crontab -l | grep -v heartbeat.sh | crontab -

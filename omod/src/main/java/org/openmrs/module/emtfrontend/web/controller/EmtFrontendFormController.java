@@ -35,7 +35,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.emtfrontend.Constants;
 import org.openmrs.module.emtfrontend.Emt;
 import org.openmrs.util.OpenmrsConstants;
-import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -51,7 +50,7 @@ public class EmtFrontendFormController {
 
 	@RequestMapping(value = "/module/emtfrontend/emtfrontendConfig.form", method = RequestMethod.GET)
 	private String showConfig(ModelMap model) {
-		model.addAttribute("emrConfig", OpenmrsUtil.getApplicationDataDirectory() + "EmrMonitoringTool" + File.separator + "emt.properties");
+		model.addAttribute("emrConfig", Constants.OPENMRS_DATA_DIRECTORY + "EmrMonitoringTool" + File.separator + "emt.properties");
 		return "/module/emtfrontend/emtfrontendConfig";
 	}
 
@@ -60,7 +59,7 @@ public class EmtFrontendFormController {
 		Properties prop = new Properties();
 		OutputStream output = null;
 		try {
-			output = new FileOutputStream(Constants.RUNTIME_DIR + "/emt.properties");
+			output = new FileOutputStream(Constants.INSTALL_DIR + "/emt.properties");
 			// set the properties value
 			prop.setProperty("clinicDays", days);
 			prop.setProperty("clinicStart", start);
@@ -106,7 +105,7 @@ public class EmtFrontendFormController {
 			// invokeExternalProcess();
 			// invokeJarFromCustomCloassloader();
 			invokeNormalEmt(output.format(input.parse(start)),
-					output.format(input.parse(end)), Constants.RUNTIME_DIR + "/emt.log",
+					output.format(input.parse(end)), Constants.INSTALL_DIR + "/emt.log",
 					tempFilename);
 
 			File pdfFile = new File(tempFilename);
@@ -136,7 +135,7 @@ public class EmtFrontendFormController {
 		// most likely not clever as external processes forked from java require
 		// again
 		// the same amount of assigned memory, thus doubling the -Xmx settings.
-		String s = Constants.INSTALL_DIR + "/EmrMonitoringTool/generate-example-report.sh";
+		String s = Constants.RUNTIME_DIR + "/EmrMonitoringTool/generate-example-report.sh";
 		Process pro2 = Runtime.getRuntime().exec(s);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				pro2.getInputStream()));
@@ -215,7 +214,7 @@ public class EmtFrontendFormController {
 			}
 			log.info(fosaid);
 			invokeNormalHmisExport(output.format(input.parse(date)) + "02",
-					Constants.RUNTIME_DIR + "/emt.log", fosaid,
+					Constants.INSTALL_DIR + "/emt.log", fosaid,
 					tempFilename);
 
 			File csvFile = new File(tempFilename);
@@ -250,7 +249,7 @@ public class EmtFrontendFormController {
 
 		Config c = null;
 		try {
-			input = new FileInputStream(Constants.RUNTIME_DIR + "/emt.properties");
+			input = new FileInputStream(Constants.INSTALL_DIR + "/emt.properties");
 			prop.load(input);
 			String days = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
 			String start = prop.getProperty("clinicStart", "800");

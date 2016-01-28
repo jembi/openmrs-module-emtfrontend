@@ -37,7 +37,12 @@ OMRS_APP_NAME=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_app_name' | tail 
 OMRS_DATA_DIR=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_data_directory' | tail -n 1 | cut -d "=" -f2-`
 OMRS_BACKUP_DIR=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_backups_directory' | tail -n 1 | cut -d "=" -f2-`
 OMRS_URL=`sed '/^\#/d' "$EMT_MAIN_CONFIG" | grep 'openmrs_url' | tail -n 1 | cut -d "=" -f2-`
-
+if [ -f pom.xml ]; then
+EMR_MODULE_ID=`grep -m 1 '<artifactId>' pom.xml | cut -f2 -d">"|cut -f1 -d"<"`
+EMR_MODULE_VERSION=`grep -m 1 '<version>' pom.xml | cut -f2 -d">"|cut -f1 -d"<"`
+EMR_JAR=omod/target/$EMR_MODULE_ID-$EMR_MODULE_VERSION.jar
+cp $EMR_JAR $EMT_DIR/lib
+fi
 cp -r shell-backend/lib $EMT_DIR
 cp shell-backend/*.sh $EMT_DIR
 if [ ! -d $OMRS_DATA_DIR ]; then

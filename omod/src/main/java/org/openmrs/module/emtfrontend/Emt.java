@@ -196,7 +196,7 @@ public class Emt {
 		InputStream input = null;
 
 		try {
-			input = new FileInputStream(Constants.RUNTIME_DIR
+			input = new FileInputStream(Constants.INSTALL_DIR
 					+ "/emt.properties");
 			prop.load(input);
 			clinicDays = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
@@ -204,7 +204,7 @@ public class Emt {
 					.parseInt(prop.getProperty("clinicStart", "8"));
 			clinicStop = Integer.parseInt(prop.getProperty("clinicEnd", "17"));
 		} catch (IOException ex) {
-			System.out.println("Warning: " + Constants.RUNTIME_DIR
+			System.out.println("Warning: " + Constants.INSTALL_DIR
 					+ "/emt.properties not found. Assuming defaults");
 			ex.printStackTrace();
 		} finally {
@@ -358,7 +358,7 @@ public class Emt {
 		ss.add("\n(2) between start and end date (incl. outside of clinic hours)");
 		ss.add("\n(3) new during period in OpenMRS database (not voided or retired)");
 		ss.add("\n(4) total ever in OpenMRS database (not voided or retired)");
-		ss.add("\n(5) in /var/backups/OpenMRS");
+		ss.add("\n(5) in " + Constants.INSTALL_DIR + "backups");
 
 		return ss;
 	}
@@ -528,7 +528,7 @@ public class Emt {
 	}
 
 	private String lastOpenMRSBackup() {
-		File fs = new File("/var/backups/OpenMRS");
+		File fs = new File(Constants.INSTALL_DIR + "backups");
 		// File fs = new File("/tmp");
 		File[] allFiles = fs.listFiles();
 		if (allFiles != null && allFiles.length > 0) {
