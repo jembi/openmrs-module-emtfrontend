@@ -57,3 +57,4 @@ bash $EMT_DIR/startup-hook.sh
 bash $EMT_DIR/heartbeat.sh
 bash $EMT_DIR/openmrs-heartbeat.sh
 bash $EMT_DIR/generate-example-report.sh
+echo "You have successfully installed EMT"
