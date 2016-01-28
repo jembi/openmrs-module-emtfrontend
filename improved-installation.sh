@@ -53,4 +53,7 @@ if [ ! -d $OMRS_DATA_DIR/EmrMonitoringTool ]; then
 mkdir $OMRS_DATA_DIR/EmrMonitoringTool
 fi
 bash $EMT_DIR/configure.sh $EMT_DIR $OMRS_DATA_DIR
-
+bash $EMT_DIR/startup-hook.sh
+bash $EMT_DIR/heartbeat.sh
+bash $EMT_DIR/openmrs-heartbeat.sh
+bash $EMT_DIR/generate-example-report.sh
