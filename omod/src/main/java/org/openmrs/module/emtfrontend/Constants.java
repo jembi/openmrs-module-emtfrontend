@@ -7,10 +7,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.lang.StringUtils;
+import org.openmrs.module.ModuleFactory;
+
 public class Constants {
 
 	// would be nice to get it from the maven build
-	public static final String EMT_VERSION = "0.5-SNAPSHOT";
+	public static final String EMT_VERSION = getEMTVersion();
 
 	// for log file and properties
 	public static String OPENMRS_DATA_DIRECTORY = getOpenMRSDataDirectory();
@@ -67,4 +70,13 @@ public class Constants {
 		return System.getProperty("user.home") + File.separator + "EmrMonitoringTool";
 	}
 
+	private static String getEMTVersion() {
+		String version = "0.5-SNAPSHOT";
+		
+		if(ModuleFactory.getModuleById("emtfrontend") != null && StringUtils.isNotBlank(ModuleFactory.getModuleById("emtfrontend").getVersion())) {
+			version = ModuleFactory.getModuleById("emtfrontend").getVersion();
+		}
+		
+		return version;
+	}
 }
