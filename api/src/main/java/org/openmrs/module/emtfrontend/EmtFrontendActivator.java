@@ -15,27 +15,45 @@ package org.openmrs.module.emtfrontend;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.module.Activator;
+import org.openmrs.module.ModuleActivator;
+import org.openmrs.util.OpenmrsConstants;
 
 /**
- * This class contains the logic that is run every time this module is either started or shutdown
+ * This class contains the logic that is run every time this module is either
+ * started or shutdown
  */
-public class EmtFrontendActivator implements Activator {
-	
+public class EmtFrontendActivator implements ModuleActivator {
+
 	private Log log = LogFactory.getLog(this.getClass());
-	
-	/**
-	 * @see org.openmrs.module.Activator#startup()
-	 */
-	public void startup() {
-		log.info("Starting EMR Monitoring Tool Frontend");
+
+	public void contextRefreshed() {
+		// TODO check if os is ubuntu, may be use
+		// OpenmrsConstants.UNIX_BASED_OPERATING_SYSTEM or
+		// OpenmrsConstants.WINDOWS_BASED_OPERATING_SYSTEM, etc
+		log.info("DHIS Connector Module refreshed");
+		if(!(OpenmrsConstants.UNIX_BASED_OPERATING_SYSTEM && System.getProperty("os.name").toLowerCase().equals("linux"))) {
+			try {
+				throw new Exception("Module Requires linux/ubuntu to start");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
-	
-	/**
-	 * @see org.openmrs.module.Activator#shutdown()
-	 */
-	public void shutdown() {
-		log.info("Shutting down EMR Monitoring Tool Frontend");
+
+	public void started() {
+		log.info("EMR Monitoring Tool Frontend module is started");
 	}
-	
+
+	public void stopped() {
+		log.info("EMR Monitoring Tool Frontend module is stopped");
+	}
+
+	public void willRefreshContext() {
+	}
+
+	public void willStart() {
+	}
+
+	public void willStop() {
+	}
 }

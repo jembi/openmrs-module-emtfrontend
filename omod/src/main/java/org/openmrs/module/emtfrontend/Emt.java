@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -36,6 +37,8 @@ public class Emt {
 		try {
 			Date startDate = Constants.shortDf.parse(args[0]);
 			Date endDate = Constants.shortDf.parse(args[1]);
+			String dhisDataValuesFilePath = args[4];
+			String installDirectory = dhisDataValuesFilePath.replace("dhis-emt-datasetValueSets.json", "");
 			if (startDate.after(endDate)) {
 				// swap start and end date if start date after end date
 				Date tmp = startDate;
@@ -43,7 +46,7 @@ public class Emt {
 				endDate = tmp;
 			}
 
-			loadConfig();
+			loadConfig(installDirectory);
 			// add one day minus 1 second to end date to easily include end date
 			// in
 			// calculations
@@ -122,9 +125,8 @@ public class Emt {
 					+ " - "
 					+ Constants.df.format(end)
 					+ ")";
-
 			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
-					previousWeekUptime, previousMonthUptime);
+					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory);
 			System.out.println(s);
 			String emtPdfOutput = args[3];
 			emt.generatePdfReport(s, startDate, endDate, emtPdfOutput);
@@ -133,11 +135,71 @@ public class Emt {
 		}
 	}
 
+	/**
+	 * Just a hacky way to meet Wayne's expectations by 12/Feb/2016
+	 * 
+	 * @param dhisDataValuesFilePath
+	 * @param startDate
+	 * @param endDate
+	 */
+	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits) {
+		/*	DATA ELEMENTS:
+		 	name ___ uid
+			Encounters ___ RYe2tuO9njZ
+			Observations ___ NorJph8rRjt
+			Users ___ GKi8zBGuC3p
+			Patients-Active ___ hk0HYxaBPtz
+			Patients-New ___ aGdN2xl9nUj
+			Visits ___ nqGCy0uyzm8
+		 */
+		/*	ORG UNITS/ TODO OpenMRS Locations match
+		 	BPZcHDS6OO0: configured at dhis side {facility Gashora CS which is Rwanda-East-Bugesera District-Nyamata Sub District-Gashora and has a uid of BPZcHDS6OO0}
+		 */
+		//20160101 00:00:000 to 20160102 00:00:000
+		Calendar cal = Calendar.getInstance();
+		Date today = new Date();
+		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMdd hh:mm:ss");
+		Date oneDayAgoDate = null;
+		
+		cal.setTime(today);//TODO must it be hard coded to one day range alone!!! or we use start and end dates
+		cal.add(Calendar.DAY_OF_YEAR, -1);
+		oneDayAgoDate = cal.getTime();
+		
+		String period = dFormat.format(oneDayAgoDate) + " to " + dFormat.format(today);
+		String dataElement1 = "\n  { \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + period + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + encounterTotal + "}";
+		String dataElement2 = "\n  { \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + period + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + obsTotal + "}";
+		String dataElement3 = "\n  { \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + period + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalUsers + "}";
+		String dataElement4 = "\n  { \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + period + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientActive + "}";
+		String dataElement5 = "\n  { \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + period + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientNew + "}";
+		String dataElement6 = "\n  { \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + period + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalVisits + "}";
+		String json = "{\n \"dataValues\": [ " + dataElement1 + ",\n" + dataElement2 + ",\n" + dataElement3 + ",\n" + dataElement4 + ",\n" + dataElement5 + ",\n" + dataElement6 + "\n ]\n}";
+		
+		File dhisDataJson = new File(dhisDataValuesFilePath);
+		
+		try {
+			FileOutputStream fop = new FileOutputStream(dhisDataJson);
+
+			// if file doesnt exists, then create it
+			if (!dhisDataJson.exists()) {
+					dhisDataJson.createNewFile();
+			}
+	
+			// get the content in bytes
+			byte[] contentInBytes = json.getBytes();
+	
+			fop.write(contentInBytes);
+			fop.flush();
+			fop.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void hmisExport(String[] args) {
 		try {
 			Date date = Constants.shortDf.parse(args[0]);
 
-			loadConfig();
+			loadConfig("frontEnd");
 			// add one day minus 1 second to end date to easily include end date
 			// in
 			// calculations
@@ -191,12 +253,15 @@ public class Emt {
 		}
 	}
 
-	private static void loadConfig() {
+	private static void loadConfig(String installDirectory) {
 		Properties prop = new Properties();
 		InputStream input = null;
 
+		if(installDirectory.equals("frontEnd")) {
+			installDirectory = Constants.INSTALL_DIR;
+		}
 		try {
-			input = new FileInputStream(Constants.INSTALL_DIR
+			input = new FileInputStream(installDirectory
 					+ "/emt.properties");
 			prop.load(input);
 			clinicDays = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
@@ -204,7 +269,7 @@ public class Emt {
 					.parseInt(prop.getProperty("clinicStart", "8"));
 			clinicStop = Integer.parseInt(prop.getProperty("clinicEnd", "17"));
 		} catch (IOException ex) {
-			System.out.println("Warning: " + Constants.INSTALL_DIR
+			System.out.println("Warning: " + installDirectory
 					+ "/emt.properties not found. Assuming defaults");
 			ex.printStackTrace();
 		} finally {
@@ -295,7 +360,7 @@ public class Emt {
 
 	private List<String> report(Date startDate, Date endDate,
 			String thisWeekUptime, String previousWeekUptime,
-			String previousMonthUptime) {
+			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory) {
 		
 		Uptime uptime = systemUptime(startDate, endDate);
 		Uptime openmrsUptime = openmrsUptime(startDate, endDate);
@@ -303,6 +368,8 @@ public class Emt {
 			openmrsUptime = uptime;
 		}
 		List<String> ss = new ArrayList<String>();
+		int numberOfEncounters = totalEncounters(false) - totalEncounters(true);
+		
 		ss.add("Current date and time: " + new Date());
 		ss.add("");
 		ss.add("\nSystem ID: " + systemId);
@@ -334,7 +401,7 @@ public class Emt {
 		ss.add("\nPercentage of OpenMRS uptime (1): "
 				+ openmrsUptime.print());
 		ss.add("\nNumber of Encounters (3) - (4): "
-				+ (totalEncounters(false) - totalEncounters(true)) + " - "
+				+ numberOfEncounters + " - "
 				+ totalEncounters(false));
 		ss.add("\nNumber of Obs (3) - (4): "
 				+ (totalObs(false) - totalObs(true)) + " - " + totalObs(false));
@@ -350,7 +417,7 @@ public class Emt {
 		ss.add("\nNumber of visits (3) - (4): "
 				+ (totalVisits(false) - totalVisits(true)) + " - "
 				+ totalVisits(false));
-		ss.add("\nLast local OpenMRS backup (5): " + lastOpenMRSBackup());
+		ss.add("\nLast local OpenMRS backup (5): " + lastOpenMRSBackup(installDirectory));
 		ss.add("");
 		ss.add("\n____");
 		ss.add("");
@@ -358,8 +425,19 @@ public class Emt {
 		ss.add("\n(2) between start and end date (incl. outside of clinic hours)");
 		ss.add("\n(3) new during period in OpenMRS database (not voided or retired)");
 		ss.add("\n(4) total ever in OpenMRS database (not voided or retired)");
-		ss.add("\n(5) in " + Constants.INSTALL_DIR + "backups");
+		ss.add("\n(5) in " + installDirectory + "backups");
 
+		//TODO update after hearing from @Christian
+		int obsTotal = 0;
+		int encounterTotal = 0;
+		int totalUsers = 0;
+		int totalPatientActive = 0;
+		int totalPatientNew = 0;
+		int totalVisits = 0;
+		
+		if(!dhisDataValuesFilePath.equals("") && !dhisDataValuesFilePath.equals(null)) {
+			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits);
+		}
 		return ss;
 	}
 
@@ -527,8 +605,8 @@ public class Emt {
 		return s;
 	}
 
-	private String lastOpenMRSBackup() {
-		File fs = new File(Constants.INSTALL_DIR + "backups");
+	private String lastOpenMRSBackup(String installDirectory) {
+		File fs = new File(installDirectory + "backups");
 		// File fs = new File("/tmp");
 		File[] allFiles = fs.listFiles();
 		if (allFiles != null && allFiles.length > 0) {

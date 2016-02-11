@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.StringUtils;
+import org.openmrs.api.APIException;
 import org.openmrs.module.ModuleFactory;
+import org.openmrs.util.OpenmrsUtil;
+import org.openmrs.web.WebConstants;
 
 public class Constants {
 
@@ -34,40 +37,47 @@ public class Constants {
 	 */
 	private static String getOpenMRSDataDirectory() {
 		String dir = "";
-		File installDir = new File(getEMTInstallationDirectory() + File.separator + ".emt-config.properties");
-
-		if (!installDir.exists()) {
-			if((new File("/var/lib/OpenMRS").exists())) {
-				dir = "/var/lib/OpenMRS" + File.separator;//default
-			} else if((new File(System.getProperty("user.home") + File.separator + ".OpenMRS").exists())) {
-				dir = System.getProperty("user.home") + File.separator + ".OpenMRS" + File.separator;
-			}
-		} else {
-			BufferedReader br;
-			try {
-				br = new BufferedReader(new FileReader(installDir));
-
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					if(line.startsWith("openmrs_data_directory=")) {
-						dir = line.split("=")[1];
-						break;
-					}
+		File installConfig;
+		try {
+			installConfig = new File(OpenmrsUtil.getDirectoryInApplicationDataDirectory("EmrMonitoringTool").getCanonicalPath() + File.separator  + "." + WebConstants.WEBAPP_NAME + "-emt-config.properties");
+			if (!installConfig.exists()) {
+				if((new File("/var/lib/OpenMRS").exists())) {
+					dir = "/var/lib/OpenMRS" + File.separator;//default
+				} else if((new File(System.getProperty("user.home") + File.separator + ".OpenMRS").exists())) {
+					dir = System.getProperty("user.home") + File.separator + ".OpenMRS" + File.separator;
 				}
-
-				br.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} else {
+				BufferedReader br;
+				try {
+					br = new BufferedReader(new FileReader(installConfig));
+	
+					String line = null;
+					while ((line = br.readLine()) != null) {
+						if(line.startsWith("openmrs_data_directory=")) {
+							dir = line.split("=")[1];
+							break;
+						}
+					}
+	
+					br.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	
 			}
-
+		} catch (APIException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
+
 		return dir;
 	}
 	
 	private static String getEMTInstallationDirectory() {
-		return System.getProperty("user.home") + File.separator + "EmrMonitoringTool";
+		return "/usr/local/etc/EmrMonitoringTool";
 	}
 
 	private static String getEMTVersion() {
