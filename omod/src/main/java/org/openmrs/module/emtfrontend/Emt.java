@@ -428,12 +428,12 @@ public class Emt {
 		ss.add("\n(5) in " + installDirectory + "backups");
 
 		//TODO update after hearing from @Christian
-		int obsTotal = 0;
-		int encounterTotal = 0;
-		int totalUsers = 0;
-		int totalPatientActive = 0;
-		int totalPatientNew = 0;
-		int totalVisits = 0;
+		int obsTotal = totalObs(false);
+		int encounterTotal = totalEncounters(false);
+		int totalUsers = totalUsers(false);
+		int totalPatientActive = totalActivePatients(false);
+		int totalPatientNew = totalNewPatients(false);
+		int totalVisits = totalVisits(false);
 		
 		if(!dhisDataValuesFilePath.equals("") && !dhisDataValuesFilePath.equals(null)) {
 			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits);
