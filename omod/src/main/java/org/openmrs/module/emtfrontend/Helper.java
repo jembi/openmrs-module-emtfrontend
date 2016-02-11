@@ -1,14 +1,16 @@
 package org.openmrs.module.emtfrontend;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class Helper {
-
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+	
 	public static boolean inPeriod(Date startDate, Date endDate, String line)
 			throws ParseException {
-		return inPeriod(startDate, endDate, Constants.sdf.parse(line));
+		return inPeriod(startDate, endDate, sdf.parse(line));
 	}
 
 	public static boolean inPeriod(Date startDate, Date endDate, Date date) {

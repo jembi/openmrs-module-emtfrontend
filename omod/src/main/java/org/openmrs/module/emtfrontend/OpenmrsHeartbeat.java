@@ -1,6 +1,7 @@
 package org.openmrs.module.emtfrontend;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -8,6 +9,7 @@ public class OpenmrsHeartbeat implements Heartbeatable {
 	public static int RESPONDING = 0;
 	public static int RESPONDING_AFTER_ONE_MINUTE = 1;
 	public static int NOT_RESPONDING = 2;
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	
 	private Date date = null;
 	public int totalEncounters = -1;
@@ -20,7 +22,7 @@ public class OpenmrsHeartbeat implements Heartbeatable {
 	
 	public OpenmrsHeartbeat(String timestamp, StringTokenizer st)
 			throws ParseException {
-		date = Constants.sdf.parse(timestamp);
+		date = sdf.parse(timestamp);
 		if (st.hasMoreTokens()) {
 			String s = st.nextToken();
 			if ("responding".equals(s)) {

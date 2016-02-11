@@ -33,6 +33,7 @@ public class EmtFrontendActivator implements ModuleActivator {
 		log.info("DHIS Connector Module refreshed");
 		if(!(OpenmrsConstants.UNIX_BASED_OPERATING_SYSTEM && System.getProperty("os.name").toLowerCase().equals("linux"))) {
 			try {
+				log.error("EMT FrontEnd Module Requires linux/ubuntu to start");
 				throw new Exception("Module Requires linux/ubuntu to start");
 			} catch (Exception e) {
 				e.printStackTrace();

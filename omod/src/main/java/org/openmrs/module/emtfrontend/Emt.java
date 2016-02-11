@@ -22,7 +22,6 @@ import java.util.StringTokenizer;
 
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -32,11 +31,18 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 public class Emt {
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+	private static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
+	private static SimpleDateFormat shortDf = new SimpleDateFormat("yyyyMMdd");
+	private static int heartbeatCronjobIntervallInMinutes = 15;
+	private static int firstHeartbeatCronjobStartsAtMinute = 1;
+	private static int openmrsHeartbeatCronjobIntervallInMinutes = 15;
+	private static int firstOpenmrsHeartbeatCronjobStartsAtMinute = 2;
 
 	public static void main(String[] args) {
 		try {
-			Date startDate = Constants.shortDf.parse(args[0]);
-			Date endDate = Constants.shortDf.parse(args[1]);
+			Date startDate = shortDf.parse(args[0]);
+			Date endDate = shortDf.parse(args[1]);
 			String dhisDataValuesFilePath = args[4];
 			String installDirectory = dhisDataValuesFilePath.replace("dhis-emt-datasetValueSets.json", "");
 			if (startDate.after(endDate)) {
@@ -78,7 +84,7 @@ public class Emt {
 			Date end = c.getTime();
 			emtThisWeek.parseLog(start, end, emtLog);
 			String thisWeekUptime = emtThisWeek.systemUptime(start, end).print() + " ("
-					+ Constants.df.format(start) + " - " + Constants.df.format(end) + ")";
+					+ df.format(start) + " - " + df.format(end) + ")";
 
 			Emt emtPreviousWeek = new Emt();
 			c = Calendar.getInstance();
@@ -98,9 +104,9 @@ public class Emt {
 			String previousWeekUptime = emtPreviousWeek
 					.systemUptime(start, end).print()
 					+ " ("
-					+ Constants.df.format(start)
+					+ df.format(start)
 					+ " - "
-					+ Constants.df.format(end) + ")";
+					+ df.format(end) + ")";
 
 			Emt emtPreviousMonth = new Emt();
 			c = Calendar.getInstance();
@@ -121,9 +127,9 @@ public class Emt {
 			String previousMonthUptime = emtPreviousMonth.systemUptime(start,
 					end).print()
 					+ " ("
-					+ Constants.df.format(start)
+					+ df.format(start)
 					+ " - "
-					+ Constants.df.format(end)
+					+ df.format(end)
 					+ ")";
 			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
 					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory);
@@ -197,7 +203,7 @@ public class Emt {
 
 	public static void hmisExport(String[] args) {
 		try {
-			Date date = Constants.shortDf.parse(args[0]);
+			Date date = shortDf.parse(args[0]);
 
 			loadConfig("frontEnd");
 			// add one day minus 1 second to end date to easily include end date
@@ -300,6 +306,7 @@ public class Emt {
 			throws FileNotFoundException {
 		File emt = new File(emtLog);
 		Scanner scanner = new Scanner(emt);
+		
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			try {
@@ -378,8 +385,8 @@ public class Emt {
 		ss.add("\nPrimary Clinic Days: " + clinicDays);
 		ss.add("\nPrimary Clinic Hours: " + clinicStart + " - " + clinicStop);
 		ss.add("");
-		ss.add("\nStart date: " + Constants.df.format(startDate));
-		ss.add("\nEnd date: " + Constants.df.format(endDate) + " (including)");
+		ss.add("\nStart date: " + df.format(startDate));
+		ss.add("\nEnd date: " + df.format(endDate) + " (including)");
 		ss.add("");
 		ss.add("\nPercentage of system uptime (1): "
 				+ uptime.print());
@@ -442,7 +449,7 @@ public class Emt {
 	}
 
 	private String emtVersion() {
-		return Constants.EMT_VERSION;
+		return "0.6-SNAPSHOT";
 	}
 
 	private int totalEncounters(boolean atStart) {
@@ -549,7 +556,7 @@ public class Emt {
 
 	private Uptime systemUptime(Date startDate, Date endDate) {
 		Uptime uptime = new Uptime();
-		uptime.calcHeartbearts(startDate, endDate, heartbeats, Constants.heartbeatCronjobIntervallInMinutes, Constants.firstHeartbeatCronjobStartsAtMinute);
+		uptime.calcHeartbearts(startDate, endDate, heartbeats, heartbeatCronjobIntervallInMinutes, firstHeartbeatCronjobStartsAtMinute);
 		uptime.calcPercentage();
 		return uptime;
 	}
@@ -575,11 +582,11 @@ public class Emt {
 			}
 		});
 		String s = "";
-		s += startups.size() > 0 ? Constants.sdf.format(startups.get(0).date) : "";
+		s += startups.size() > 0 ? sdf.format(startups.get(0).date) : "";
 		s += " "
-				+ (startups.size() > 1 ? Constants.sdf.format(startups.get(1).date) : "");
+				+ (startups.size() > 1 ? sdf.format(startups.get(1).date) : "");
 		s += " "
-				+ (startups.size() > 2 ? Constants.sdf.format(startups.get(2).date) : "");
+				+ (startups.size() > 2 ? sdf.format(startups.get(2).date) : "");
 		return s;
 	}
 
@@ -618,7 +625,7 @@ public class Emt {
 			});
 			String s = allFiles[allFiles.length - 1].getName()
 					+ " ("
-					+ Constants.sdf.format(new Date(allFiles[allFiles.length - 1]
+					+ sdf.format(new Date(allFiles[allFiles.length - 1]
 							.lastModified())) + ")";
 			return s;
 		} else {
@@ -628,7 +635,7 @@ public class Emt {
 
 	private Uptime openmrsUptime(Date startDate, Date endDate) {
 		Uptime uptime = new Uptime();
-		uptime.calcHeartbearts(startDate, endDate, openmrsHeartbeats, Constants.openmrsHeartbeatCronjobIntervallInMinutes, Constants.firstOpenmrsHeartbeatCronjobStartsAtMinute);
+		uptime.calcHeartbearts(startDate, endDate, openmrsHeartbeats, openmrsHeartbeatCronjobIntervallInMinutes, firstOpenmrsHeartbeatCronjobStartsAtMinute);
 		uptime.calcPercentage();
 		return uptime;
 	}

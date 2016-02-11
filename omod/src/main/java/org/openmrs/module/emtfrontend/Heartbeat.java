@@ -1,6 +1,7 @@
 package org.openmrs.module.emtfrontend;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -12,10 +13,11 @@ public class Heartbeat implements Heartbeatable {
 	public double loadAverage15Min = -1;
 	public int totalMemory = -1;
 	public int freeMemory = -1;
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
 	public Heartbeat(String timestamp, StringTokenizer st)
 			throws ParseException {
-		date = Constants.sdf.parse(timestamp);
+		date = sdf.parse(timestamp);
 		try {
 			if (st.hasMoreTokens())
 				loadAverage1Min = Double.parseDouble(st.nextToken());
