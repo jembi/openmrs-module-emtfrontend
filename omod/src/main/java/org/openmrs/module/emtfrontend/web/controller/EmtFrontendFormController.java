@@ -59,7 +59,7 @@ public class EmtFrontendFormController {
 		Properties prop = new Properties();
 		OutputStream output = null;
 		try {
-			output = new FileOutputStream(Constants.INSTALL_DIR + "/emt.properties");
+			output = new FileOutputStream(Constants.INSTALL_DIR + "emt.properties");
 			// set the properties value
 			prop.setProperty("clinicDays", days);
 			prop.setProperty("clinicStart", start);
@@ -84,6 +84,47 @@ public class EmtFrontendFormController {
 	private String showForm() {
 		return "/module/emtfrontend/emtfrontendForm";
 	}
+	
+	@RequestMapping(value = "/module/emtfrontend/emtfrontendDHIS.form", method = RequestMethod.GET)
+	public void renderEmtfrontendDHIS(ModelMap model) {
+		model.addAttribute("message", "");
+	}
+	
+	@RequestMapping(value = "/module/emtfrontend/emtfrontendDHIS.form", method = RequestMethod.POST)
+	public void exportEmtfrontendDHIS(HttpServletResponse response, ModelMap model) {
+		String dhisToExport = Constants.INSTALL_DIR + "dhis-emt-datasetValueSets.json";
+		
+		response.setContentType("text/json");
+		response.addHeader("Content-Disposition", "attachment; filename=dhis-emt-data.json");
+		response.setContentLength((int) dhisToExport.length());
+
+		FileInputStream fileInputStream = null;
+		String cmd = "bash " + Constants.RUNTIME_DIR + "/shell-backend/push-data-to-dhis.sh";
+		
+		try {
+			fileInputStream = new FileInputStream(dhisToExport);
+			int bytes;
+			byte[] buffer = new byte[4096];
+			OutputStream outStream = response.getOutputStream();
+			
+			while ((bytes = fileInputStream.read(buffer)) != -1) {
+				outStream.write(buffer, 0, bytes);
+			}
+			Runtime.getRuntime().exec(cmd);
+			model.addAttribute("message", "Successfully pushed emt data to DHIS, see sent data downloaded");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (fileInputStream != null)
+				try {
+					fileInputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+	}
 
 	@RequestMapping(value = "/module/emtfrontend/generatePDF.form", method = RequestMethod.GET)
 	private void generatePDF(HttpServletRequest request,
@@ -105,8 +146,8 @@ public class EmtFrontendFormController {
 			// invokeExternalProcess();
 			// invokeJarFromCustomCloassloader();
 			invokeNormalEmt(output.format(input.parse(start)),
-					output.format(input.parse(end)), Constants.INSTALL_DIR + "/emt.log",
-					tempFilename);
+					output.format(input.parse(end)), Constants.INSTALL_DIR + "emt.log",
+					tempFilename, Constants.INSTALL_DIR + "dhis-emt-datasetValueSets.json");
 
 			File pdfFile = new File(tempFilename);
 			// send back as PDF via HTTP
@@ -122,8 +163,8 @@ public class EmtFrontendFormController {
 	}
 
 	private void invokeNormalEmt(String start, String end, String log,
-			String tempFilename) {
-		String[] args = { start, end, log, tempFilename };
+			String tempFilename, String dhisDatasetValuesets) {
+		String[] args = { start, end, log, tempFilename, dhisDatasetValuesets };
 		Emt.main(args);
 	}
 
@@ -135,7 +176,7 @@ public class EmtFrontendFormController {
 		// most likely not clever as external processes forked from java require
 		// again
 		// the same amount of assigned memory, thus doubling the -Xmx settings.
-		String s = Constants.RUNTIME_DIR + "/EmrMonitoringTool/generate-example-report.sh";
+		String s = Constants.RUNTIME_DIR + "/shell-backend/generate-example-report.sh";
 		Process pro2 = Runtime.getRuntime().exec(s);
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				pro2.getInputStream()));
@@ -143,6 +184,9 @@ public class EmtFrontendFormController {
 
 	private void returnPdf(HttpServletResponse response, File pdfFile,
 			String filenameToReturn) throws FileNotFoundException, IOException {
+		if(!filenameToReturn.endsWith(".pdf")) {
+			filenameToReturn += ".pdf";
+		}
 		response.setContentType("application/pdf");
 		response.addHeader("Content-Disposition", "attachment; filename="
 				+ filenameToReturn);
@@ -214,7 +258,7 @@ public class EmtFrontendFormController {
 			}
 			log.info(fosaid);
 			invokeNormalHmisExport(output.format(input.parse(date)) + "02",
-					Constants.INSTALL_DIR + "/emt.log", fosaid,
+					Constants.INSTALL_DIR + "emt.log", fosaid,
 					tempFilename);
 
 			File csvFile = new File(tempFilename);
@@ -249,7 +293,7 @@ public class EmtFrontendFormController {
 
 		Config c = null;
 		try {
-			input = new FileInputStream(Constants.INSTALL_DIR + "/emt.properties");
+			input = new FileInputStream(Constants.INSTALL_DIR + "emt.properties");
 			prop.load(input);
 			String days = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
 			String start = prop.getProperty("clinicStart", "800");

@@ -50,6 +50,7 @@ public class AdminList extends AdministrationSectionExt {
 		map.put("module/emtfrontend/emtfrontendHmisExport.form", "emtfrontend.hmisexport");
 		map.put("module/emtfrontend/emtfrontendLink.form", "emtfrontend.generate");
 		map.put("module/emtfrontend/emtfrontendConfig.form", "emtfrontend.config");
+		map.put("module/emtfrontend/emtfrontendDHIS.form", "emtfrontend.generateDHIS");
 		
 		return map;
 	}

@@ -10,7 +10,6 @@ public class OpenmrsHeartbeat implements Heartbeatable {
 	public static int RESPONDING_AFTER_ONE_MINUTE = 1;
 	public static int NOT_RESPONDING = 2;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-	
 	private Date date = null;
 	public int totalEncounters = -1;
 	public int totalObs = -1;
