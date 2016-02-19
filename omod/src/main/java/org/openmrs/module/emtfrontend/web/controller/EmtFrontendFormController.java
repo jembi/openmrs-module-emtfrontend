@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -103,12 +104,12 @@ public class EmtFrontendFormController {
 		
 		try {
 			fileInputStream = new FileInputStream(dhisToExport);
-			int bytes;
 			byte[] buffer = new byte[4096];
 			OutputStream outStream = response.getOutputStream();
 			
-			while ((bytes = fileInputStream.read(buffer)) != -1) {
-				outStream.write(buffer, 0, bytes);
+			int len;
+			while ((len = fileInputStream.read(buffer)) > 0) {
+				outStream.write(buffer, 0, len);
 			}
 			Runtime.getRuntime().exec(cmd);
 			model.addAttribute("message", "Successfully pushed emt data to DHIS, see sent data downloaded");
@@ -126,8 +127,8 @@ public class EmtFrontendFormController {
 		}
 	}
 
-	@RequestMapping(value = "/module/emtfrontend/generatePDF.form", method = RequestMethod.GET)
-	private void generatePDF(HttpServletRequest request,
+	@RequestMapping(value = "/module/emtfrontend/emtfrontendLink.form", method = RequestMethod.POST)
+	public void generatePDF(HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			SimpleDateFormat input = new SimpleDateFormat("dd/MM/yyyy");

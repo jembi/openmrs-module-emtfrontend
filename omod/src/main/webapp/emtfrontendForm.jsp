@@ -7,7 +7,7 @@
 <h2><spring:message code="emtfrontend.title" /> <spring:message code="emtfrontend.generate" /></h2>
 
 <table>
-<form method="get" action="/openmrs/module/emtfrontend/generatePDF.form">
+<form method="POST">
 <tr>
 	<td>Start Date:</td>
 	<td><input type="startDate" id="startDate" name="startDate" size="10" onClick="showCalendar(this)" value="" /></td>

@@ -164,7 +164,7 @@ public class Emt {
 		//20160101 00:00:000 to 20160102 00:00:000
 		Calendar cal = Calendar.getInstance();
 		Date today = new Date();
-		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMdd");
+		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMMdd");
 		Date oneDayAgoDate = null;
 		
 		cal.setTime(today);//TODO must it be hard coded to one day range alone!!! or we use start and end dates
@@ -172,13 +172,13 @@ public class Emt {
 		oneDayAgoDate = cal.getTime();
 		
 		String period = dFormat.format(oneDayAgoDate) + " to " + dFormat.format(today);
-		String dataElement1 = "\n  { \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + encounterTotal + "}";
-		String dataElement2 = "\n  { \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + obsTotal + "}";
-		String dataElement3 = "\n  { \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalUsers + "}";
-		String dataElement4 = "\n  { \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientActive + "}";
-		String dataElement5 = "\n  { \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientNew + "}";
-		String dataElement6 = "\n  { \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalVisits + "}";
-		String json = "{\n \"dataValues\": [ " + dataElement1 + ",\n" + dataElement2 + ",\n" + dataElement3 + ",\n" + dataElement4 + ",\n" + dataElement5 + ",\n" + dataElement6 + "\n ]\n}";
+		String dataElement1 = "{ \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + encounterTotal + "}";
+		String dataElement2 = "{ \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + obsTotal + "}";
+		String dataElement3 = "{ \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalUsers + "}";
+		String dataElement4 = "{ \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientActive + "}";
+		String dataElement5 = "{ \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientNew + "}";
+		String dataElement6 = "{ \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalVisits + "}";
+		String json = "{\"dataValues\": [\n  " + dataElement1 + ",\n  " + dataElement2 + ",\n  " + dataElement3 + ",\n  " + dataElement4 + ",\n  " + dataElement5 + ",\n  " + dataElement6 + "\n ]\n}";
 		
 		File dhisDataJson = new File(dhisDataValuesFilePath);
 		
