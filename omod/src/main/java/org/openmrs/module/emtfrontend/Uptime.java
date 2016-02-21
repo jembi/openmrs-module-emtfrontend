@@ -56,7 +56,7 @@ public class Uptime {
 	}
 
 	public String print() {
-		if (expectedHeartbeats > 0) {
+		if (expectedHeartbeats >= 0) {
 			return "" + percentage + " %" + " (" + heartBeatsDuringClinic + "/"
 					+ expectedHeartbeats + "*100)";
 		} else {

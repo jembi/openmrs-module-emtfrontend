@@ -147,8 +147,14 @@ public class Emt {
 	 * @param dhisDataValuesFilePath
 	 * @param startDate
 	 * @param endDate
+	 * @param previousMonthUptime 
+	 * @param previousWeekUptime 
+	 * @param thisWeekUptime 
+	 * @param startupCount 
+	 * @param openmrsUptime 
+	 * @param heartbeats 
 	 */
-	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits) {
+	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage) {
 		/*	DATA ELEMENTS:
 		 	name ___ uid
 			Encounters ___ RYe2tuO9njZ
@@ -172,14 +178,22 @@ public class Emt {
 		oneDayAgoDate = cal.getTime();
 		
 		String period = dFormat.format(oneDayAgoDate) + " to " + dFormat.format(today);
-		String dataElement1 = "{ \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + encounterTotal + "}";
-		String dataElement2 = "{ \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + obsTotal + "}";
-		String dataElement3 = "{ \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalUsers + "}";
-		String dataElement4 = "{ \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientActive + "}";
-		String dataElement5 = "{ \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientNew + "}";
-		String dataElement6 = "{ \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalVisits + "}";
-		String json = "{\"dataValues\": [\n  " + dataElement1 + ",\n  " + dataElement2 + ",\n  " + dataElement3 + ",\n  " + dataElement4 + ",\n  " + dataElement5 + ",\n  " + dataElement6 + "\n ]\n}";
-		
+		String encounterDataElement = "{ \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + encounterTotal + "}";
+		String obsDataElement = "{ \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + obsTotal + "}";
+		String userDataElement = "{ \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalUsers + "}";
+		String patientActiveDataElement = "{ \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientActive + "}";
+		String patientNewDataElement = "{ \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientNew + "}";
+		String visitsDataElement = "{ \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalVisits + "}";
+		String systemStartupsDataElement = "{ \"dataElement\": \"q8LwlSrBOSj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + startupCount + "}";
+		String upTimeThisWeekDataElement = "{ \"dataElement\": \"CrZDptrDUqA\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + thisWeekUptime + "}";
+		String upTimeLastWeekDataElement = "{ \"dataElement\": \"h08FIw8cVUD\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + previousWeekUptime + "}";
+		String upTimeLastMonthDataElement = "{ \"dataElement\": \"q9MRIo5DX4I\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + previousMonthUptime + "}";
+		String freeMemoryDataElement = "{ \"dataElement\": \"ZPrLSHvWDm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + lastMemoryCapture()[0] + "}";
+		String totalMemoryDataElement = "{ \"dataElement\": \"FRANuyR9bKI\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + lastMemoryCapture()[1] + "}";
+		int usedMemo = lastMemoryCapture()[1] - lastMemoryCapture()[0];
+		String usedMemoryDataElement = "{ \"dataElement\": \"QZMqiNLOZNH\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + usedMemo + "}";
+		String totalOpenMRSUptimeDataElement = "{ \"dataElement\": \"OBJQIpvppBt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + openmrsUptimePercentage + "}";
+		String json = "{\"dataValues\": [\n  " + encounterDataElement + ",\n  " + obsDataElement + ",\n  " + userDataElement + ",\n  " + patientActiveDataElement + ",\n  " + patientNewDataElement + ",\n  " + visitsDataElement + ",\n  " + systemStartupsDataElement + ",\n  " + upTimeThisWeekDataElement + ",\n  " + upTimeLastWeekDataElement + ",\n  " + upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement + ",\n  " + totalMemoryDataElement + ",\n  " + totalOpenMRSUptimeDataElement  + ",\n  " + usedMemoryDataElement + "\n ]\n}";
 		File dhisDataJson = new File(dhisDataValuesFilePath);
 		
 		try {
@@ -443,7 +457,7 @@ public class Emt {
 		int totalVisits = totalVisits(true);
 		
 		if(!dhisDataValuesFilePath.equals("") && !dhisDataValuesFilePath.equals(null)) {
-			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits);
+			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage));
 		}
 		return ss;
 	}
@@ -573,6 +587,23 @@ public class Emt {
 		s += " " + (heartbeats.size() > 1 ? ((Heartbeat) heartbeats.get(1)).freeMemory : "");
 		s += " " + (heartbeats.size() > 2 ? ((Heartbeat) heartbeats.get(2)).freeMemory : "");
 		return s;
+	}
+	
+	private int[] lastMemoryCapture() {
+		int[] memo = new int[2];
+		
+		Collections.sort(heartbeats, new Comparator<Heartbeatable>() {
+			public int compare(Heartbeatable hb1, Heartbeatable hb2) {
+				return ((Integer) ((Heartbeat) hb1).freeMemory)
+						.compareTo((Integer) ((Heartbeat) hb2).freeMemory);
+			}
+		});
+		int freeMemo = heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(heartbeats.size() - 1)).freeMemory : -1;
+		int totalMemo = heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(heartbeats.size() - 1)).totalMemory : -1;
+		
+		memo[0] = freeMemo;
+		memo[1] = totalMemo;
+		return memo;
 	}
 
 	private String lastSystemRestarts() {
