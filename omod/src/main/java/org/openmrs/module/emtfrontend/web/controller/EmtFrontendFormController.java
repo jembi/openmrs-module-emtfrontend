@@ -35,6 +35,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.emtfrontend.Constants;
 import org.openmrs.module.emtfrontend.Emt;
 import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.util.OpenmrsUtil;
+import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -47,6 +49,8 @@ public class EmtFrontendFormController {
 
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
+	
+	private static String INSTALL_DIR = OpenmrsUtil.getApplicationDataDirectory() + WebConstants.WEBAPP_NAME + File.separator;
 
 	@RequestMapping(value = "/module/emtfrontend/emtfrontendConfig.form", method = RequestMethod.GET)
 	private String showConfig(ModelMap model) {
@@ -59,7 +63,7 @@ public class EmtFrontendFormController {
 		Properties prop = new Properties();
 		OutputStream output = null;
 		try {
-			output = new FileOutputStream(Constants.INSTALL_DIR + "emt.properties");
+			output = new FileOutputStream(INSTALL_DIR + "emt.properties");
 			// set the properties value
 			prop.setProperty("clinicDays", days);
 			prop.setProperty("clinicStart", start);
@@ -92,7 +96,7 @@ public class EmtFrontendFormController {
 	
 	@RequestMapping(value = "/module/emtfrontend/emtfrontendDHIS.form", method = RequestMethod.POST)
 	public void exportEmtfrontendDHIS(HttpServletResponse response, ModelMap model) {
-		String dhisToExport = Constants.INSTALL_DIR + "dhis-emt-datasetValueSets.json";
+		String dhisToExport = INSTALL_DIR + "dhis-emt-datasetValueSets.json";
 		
 		response.setContentType("text/json");
 		response.addHeader("Content-Disposition", "attachment; filename=dhis-emt-data.json");
@@ -146,8 +150,8 @@ public class EmtFrontendFormController {
 			// invokeExternalProcess();
 			// invokeJarFromCustomCloassloader();
 			invokeNormalEmt(output.format(input.parse(start)),
-					output.format(input.parse(end)), Constants.INSTALL_DIR + "emt.log",
-					tempFilename, Constants.INSTALL_DIR + "dhis-emt-datasetValueSets.json");
+					output.format(input.parse(end)), INSTALL_DIR + "emt.log",
+					tempFilename, INSTALL_DIR + "dhis-emt-datasetValueSets.json");
 
 			File pdfFile = new File(tempFilename);
 			// send back as PDF via HTTP
@@ -258,7 +262,7 @@ public class EmtFrontendFormController {
 			}
 			log.info(fosaid);
 			invokeNormalHmisExport(output.format(input.parse(date)) + "02",
-					Constants.INSTALL_DIR + "emt.log", fosaid,
+					INSTALL_DIR + "emt.log", fosaid,
 					tempFilename);
 
 			File csvFile = new File(tempFilename);
@@ -293,7 +297,7 @@ public class EmtFrontendFormController {
 
 		Config c = null;
 		try {
-			input = new FileInputStream(Constants.INSTALL_DIR + "emt.properties");
+			input = new FileInputStream(INSTALL_DIR + "emt.properties");
 			prop.load(input);
 			String days = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
 			String start = prop.getProperty("clinicStart", "800");

@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -85,8 +86,8 @@ public class Emt {
 			emtThisWeek.parseLog(start, end, emtLog);
 			String thisWeekUptime = emtThisWeek.systemUptime(start, end).print() + " ("
 					+ df.format(start) + " - " + df.format(end) + ")";
-
 			Emt emtPreviousWeek = new Emt();
+			
 			c = Calendar.getInstance();
 			c.setTime(new Date());
 			i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
@@ -219,7 +220,7 @@ public class Emt {
 		try {
 			Date date = shortDf.parse(args[0]);
 
-			loadConfig("frontEnd");
+			loadConfig(args[1].replace("emt.log", ""));
 			// add one day minus 1 second to end date to easily include end date
 			// in
 			// calculations
@@ -276,10 +277,7 @@ public class Emt {
 	private static void loadConfig(String installDirectory) {
 		Properties prop = new Properties();
 		InputStream input = null;
-
-		if(installDirectory.equals("frontEnd")) {
-			installDirectory = Constants.INSTALL_DIR;
-		}
+		
 		try {
 			input = new FileInputStream(installDirectory
 					+ "/emt.properties");
