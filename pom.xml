@@ -11,14 +11,6 @@
 	<description>Frontend for simplier access to reports of the EMR Monitoring Tool.</description>
 
 	<url></url>
-
-	<!--
-	<scm>
-		<connection>scm:git:git@github.com:x-ian/openmrs-module-emtfrontend.git</connection>
-		<developerConnection>scm:git:git@github.com:x-ian/openmrs-module-emtfrontend.git</developerConnection>
-		<url>https://github.com/x-ian/openmrs-module-emtfrontend/</url>
-	</scm>
-	-->
 		
 	<modules>
 		<module>api</module>
@@ -27,18 +19,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!--
-			Libraries from lib to add as dependencies with compile or runtime scope:
-					
-			Find matching dependencies in maven central repository.
-			<dependency>
-				<groupId>org.other.library</groupId>
-				<artifactId>library-name</artifactId>
-				<version>library.version</version>
-				<scope>compile</scope>
-			</dependency>
-			-->
-		
  			<dependency>
 		  		<groupId>org.apache.pdfbox</groupId>
 		  		<artifactId>pdfbox</artifactId>
