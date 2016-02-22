@@ -5,7 +5,7 @@
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>emtfrontend</artifactId>
 	<!-- Adjust version info in class Constants and script configure.sh as well! -->
-	<version>0.6-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>pom</packaging>
 	<name>EMR Monitoring Tool Frontend</name>
 	<description>Frontend for simplier access to reports of the EMR Monitoring Tool.</description>

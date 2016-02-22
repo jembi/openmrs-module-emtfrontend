@@ -485,7 +485,7 @@ public class Emt {
 	}
 
 	private String emtVersion() {
-		return "0.6-SNAPSHOT";
+		return "1.0";
 	}
 
 	private int totalEncounters(boolean atStart) {
