@@ -164,7 +164,7 @@ public class EmtFrontendFormController {
 
 	private void invokeNormalEmt(String start, String end, String log,
 			String tempFilename, String dhisDatasetValuesets) {
-		String[] args = { start, end, log, tempFilename, dhisDatasetValuesets };
+		String[] args = { start, end, log, tempFilename, dhisDatasetValuesets, WebConstants.WEBAPP_NAME };
 		Emt.main(args);
 	}
 
