@@ -23,6 +23,7 @@ public class EmtFrontendActivator implements ModuleActivator {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	public void contextRefreshed() {
+		// TODO this does not work and needs to check as well whether EMT backend is installed and well configured
 		// TODO check if os is ubuntu, may be use
 		// OpenmrsConstants.UNIX_BASED_OPERATING_SYSTEM or
 		// OpenmrsConstants.WINDOWS_BASED_OPERATING_SYSTEM, etc
