@@ -31,7 +31,6 @@ import java.util.StringTokenizer;
 
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -183,19 +182,27 @@ public class Emt {
 		Date today = new Date();
 		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMMdd");
 		Date oneDayAgoDate = null;
-		if(StringUtils.isBlank(openmrsAPPName)) {
+		String start01 = "", start02 = "";
+		
+		if(openmrsAPPName.equals("") || openmrsAPPName == null) {
 			openmrsAPPName = "openmrs";
 		}
 		
 		cal.setTime(today);//TODO must it be hard coded to one day range alone!!! or we use start and end dates
 		cal.add(Calendar.DAY_OF_YEAR, -1);
 		oneDayAgoDate = cal.getTime();
-		String clinicHours = clinicStart + " - " + clinicStop;
+		if(Integer.toString(clinicStart).length() == 3) {
+			start01 = "0";
+		}
+		if(Integer.toString(clinicStop).length() == 3) {
+			start02 = "0";
+		}
+		String clinicHours = start01 + clinicStart + " - " + start02 + clinicStop;
 		String period = dFormat.format(oneDayAgoDate) + " to " + dFormat.format(today);
-		String systemIdDataElement = "{ \"dataElement\": \"yBHJmoeteNR\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + systemId + "}";
-		String primaryClinicDaysDataElement = "{ \"dataElement\": \"rb9ef1D53Fv\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + clinicDays + "}";
-		String primaryClinicHoursDataElement = "{ \"dataElement\": \"yBHJmoeteNR\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + clinicHours + "}";
-		String openMRSAppNameDataElement = "{ \"dataElement\": \"ec9fC1xmg8R\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + openmrsAPPName + "}";
+		String systemIdDataElement = "{ \"dataElement\": \"yBHJmoeteNR\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + systemId + "\"}";
+		String primaryClinicDaysDataElement = "{ \"dataElement\": \"rb9ef1D53Fv\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + clinicDays + "\"}";
+		String primaryClinicHoursDataElement = "{ \"dataElement\": \"VDEnb2bEQH3\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + clinicHours + "\"}";
+		String openMRSAppNameDataElement = "{ \"dataElement\": \"ec9fC1xmg8R\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + openmrsAPPName + "\"}";
 		String encounterDataElement = "{ \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + encounterTotal + "}";
 		String obsDataElement = "{ \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + obsTotal + "}";
 		String userDataElement = "{ \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalUsers + "}";
