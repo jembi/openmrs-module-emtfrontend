@@ -46,11 +46,11 @@ public class EmtFrontendFormController {
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	private static String INSTALL_DIR = OpenmrsUtil.getApplicationDataDirectory() + WebConstants.WEBAPP_NAME + File.separator;
+	private static String INSTALL_DIR = OpenmrsUtil.getApplicationDataDirectory().endsWith(File.separator) ? OpenmrsUtil.getApplicationDataDirectory() :  OpenmrsUtil.getApplicationDataDirectory() + File.separator;
 
 	@RequestMapping(value = "/module/emtfrontend/emtfrontendConfig.form", method = RequestMethod.GET)
 	private String showConfig(ModelMap model) {
-		model.addAttribute("emrConfig", Constants.OPENMRS_DATA_DIRECTORY + "EmrMonitoringTool" + File.separator + "emt.properties");
+		model.addAttribute("emrConfig", INSTALL_DIR + "EmrMonitoringTool/emt.properties");
 		return "/module/emtfrontend/emtfrontendConfig";
 	}
 
@@ -59,7 +59,7 @@ public class EmtFrontendFormController {
 		Properties prop = new Properties();
 		OutputStream output = null;
 		try {
-			output = new FileOutputStream(INSTALL_DIR + "emt.properties");
+			output = new FileOutputStream(INSTALL_DIR + "EmrMonitoringTool/emt.properties");
 			// set the properties value
 			prop.setProperty("clinicDays", days);
 			prop.setProperty("clinicStart", start);
@@ -146,7 +146,7 @@ public class EmtFrontendFormController {
 			// invokeExternalProcess();
 			// invokeJarFromCustomCloassloader();
 			invokeNormalEmt(output.format(input.parse(start)),
-					output.format(input.parse(end)), INSTALL_DIR + "emt.log",
+					output.format(input.parse(end)), INSTALL_DIR + "EmrMonitoringTool/emt.log",
 					tempFilename, INSTALL_DIR + "dhis-emt-datasetValueSets.json");
 
 			File pdfFile = new File(tempFilename);
@@ -258,7 +258,7 @@ public class EmtFrontendFormController {
 			}
 			log.info(fosaid);
 			invokeNormalHmisExport(output.format(input.parse(date)) + "02",
-					INSTALL_DIR + "emt.log", fosaid,
+					INSTALL_DIR + "EmrMonitoringTool/emt.log", fosaid,
 					tempFilename);
 
 			File csvFile = new File(tempFilename);
@@ -293,7 +293,7 @@ public class EmtFrontendFormController {
 
 		Config c = null;
 		try {
-			input = new FileInputStream(INSTALL_DIR + "emt.properties");
+			input = new FileInputStream(INSTALL_DIR + "EmrMonitoringTool/emt.properties");
 			prop.load(input);
 			String days = prop.getProperty("clinicDays", "Mo,Tu,We,Th,Fr");
 			String start = prop.getProperty("clinicStart", "800");
