@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+//TODO Could actually expose "$OPENMRS_APP_NAME"-emt-config.properties configurations to be editable at user interface level
 @Controller
 public class EmtFrontendFormController {
 
@@ -91,38 +92,14 @@ public class EmtFrontendFormController {
 	}
 	
 	@RequestMapping(value = "/module/emtfrontend/emtfrontendDHIS.form", method = RequestMethod.POST)
-	public void exportEmtfrontendDHIS(HttpServletResponse response, ModelMap model) {
-		String dhisToExport = INSTALL_DIR + "dhis-emt-datasetValueSets.json";
-		
-		response.setContentType("text/json");
-		response.addHeader("Content-Disposition", "attachment; filename=dhis-emt-data.json");
-		response.setContentLength((int) dhisToExport.length());
-
-		FileInputStream fileInputStream = null;
-		String cmd = "bash " + Constants.RUNTIME_DIR + "/shell-backend/push-data-to-dhis.sh";
+	public void exportEmtfrontendDHIS(ModelMap model) {
+		String cmd = Constants.RUNTIME_DIR + "/shell-backend/push-data-to-dhis.sh";
 		
 		try {
-			fileInputStream = new FileInputStream(dhisToExport);
-			byte[] buffer = new byte[4096];
-			OutputStream outStream = response.getOutputStream();
-			
-			int len;
-			while ((len = fileInputStream.read(buffer)) > 0) {
-				outStream.write(buffer, 0, len);
-			}
 			Runtime.getRuntime().exec(cmd);
-			model.addAttribute("message", "Successfully pushed emt data to DHIS, see sent data downloaded");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			model.addAttribute("message", "Successfully Updated DHIS Remote Server");
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if (fileInputStream != null)
-				try {
-					fileInputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 		}
 	}
 
@@ -164,7 +141,7 @@ public class EmtFrontendFormController {
 
 	private void invokeNormalEmt(String start, String end, String log,
 			String tempFilename, String dhisDatasetValuesets) {
-		String[] args = { start, end, log, tempFilename, dhisDatasetValuesets, WebConstants.WEBAPP_NAME };
+		String[] args = { start, end, log, tempFilename, dhisDatasetValuesets, WebConstants.WEBAPP_NAME, null };
 		Emt.main(args);
 	}
 

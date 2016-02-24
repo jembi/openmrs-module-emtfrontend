@@ -55,6 +55,8 @@ public class Emt {
 			String dhisDataValuesFilePath = args[4];
 			String installDirectory = dhisDataValuesFilePath.replace("dhis-emt-datasetValueSets.json", "");
 			String openmrsAPPName = args[5];
+			String dhisOrganizationUnitUid = args[6];
+			
 			if (startDate.after(endDate)) {
 				// swap start and end date if start date after end date
 				Date tmp = startDate;
@@ -142,7 +144,7 @@ public class Emt {
 					+ df.format(end)
 					+ ")";
 			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
-					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName);
+					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName, dhisOrganizationUnitUid);
 			System.out.println(s);
 			String emtPdfOutput = args[3];
 			emt.generatePdfReport(s, startDate, endDate, emtPdfOutput);
@@ -164,7 +166,7 @@ public class Emt {
 	 * @param openmrsUptime 
 	 * @param heartbeats 
 	 */
-	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName) {
+	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid) {
 		/*	DATA ELEMENTS:
 		 	name ___ uid
 			Encounters ___ RYe2tuO9njZ
@@ -175,7 +177,7 @@ public class Emt {
 			Visits ___ nqGCy0uyzm8
 		 */
 		/*	ORG UNITS/ TODO OpenMRS Locations match
-		 	BPZcHDS6OO0: configured at dhis side {facility Gashora CS which is Rwanda-East-Bugesera District-Nyamata Sub District-Gashora and has a uid of BPZcHDS6OO0}
+		 	" + dhisOrganizationUnitUid +  ": configured at dhis side {facility Gashora CS which is Rwanda-East-Bugesera District-Nyamata Sub District-Gashora and has a uid of " + dhisOrganizationUnitUid +  "}
 		 */
 		//20160101 00:00:000 to 20160102 00:00:000
 		Calendar cal = Calendar.getInstance();
@@ -199,25 +201,25 @@ public class Emt {
 		}
 		String clinicHours = start01 + clinicStart + " - " + start02 + clinicStop;
 		String period = dFormat.format(oneDayAgoDate) + " to " + dFormat.format(today);
-		String systemIdDataElement = "{ \"dataElement\": \"yBHJmoeteNR\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + systemId + "\"}";
-		String primaryClinicDaysDataElement = "{ \"dataElement\": \"rb9ef1D53Fv\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + clinicDays + "\"}";
-		String primaryClinicHoursDataElement = "{ \"dataElement\": \"VDEnb2bEQH3\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + clinicHours + "\"}";
-		String openMRSAppNameDataElement = "{ \"dataElement\": \"ec9fC1xmg8R\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": \"" + openmrsAPPName + "\"}";
-		String encounterDataElement = "{ \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + encounterTotal + "}";
-		String obsDataElement = "{ \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + obsTotal + "}";
-		String userDataElement = "{ \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalUsers + "}";
-		String patientActiveDataElement = "{ \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientActive + "}";
-		String patientNewDataElement = "{ \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalPatientNew + "}";
-		String visitsDataElement = "{ \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + totalVisits + "}";
-		String systemStartupsDataElement = "{ \"dataElement\": \"q8LwlSrBOSj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + startupCount + "}";
-		String upTimeThisWeekDataElement = "{ \"dataElement\": \"CrZDptrDUqA\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + thisWeekUptime + "}";
-		String upTimeLastWeekDataElement = "{ \"dataElement\": \"h08FIw8cVUD\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + previousWeekUptime + "}";
-		String upTimeLastMonthDataElement = "{ \"dataElement\": \"q9MRIo5DX4I\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + previousMonthUptime + "}";
-		String freeMemoryDataElement = "{ \"dataElement\": \"ZPrLSHvWDm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + lastMemoryCapture()[0] + "}";
-		String totalMemoryDataElement = "{ \"dataElement\": \"FRANuyR9bKI\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + lastMemoryCapture()[1] + "}";
+		String systemIdDataElement = "{ \"dataElement\": \"yBHJmoeteNR\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + systemId + "\"}";
+		String primaryClinicDaysDataElement = "{ \"dataElement\": \"rb9ef1D53Fv\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + clinicDays + "\"}";
+		String primaryClinicHoursDataElement = "{ \"dataElement\": \"VDEnb2bEQH3\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + clinicHours + "\"}";
+		String openMRSAppNameDataElement = "{ \"dataElement\": \"ec9fC1xmg8R\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + openmrsAPPName + "\"}";
+		String encounterDataElement = "{ \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + encounterTotal + "}";
+		String obsDataElement = "{ \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + obsTotal + "}";
+		String userDataElement = "{ \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalUsers + "}";
+		String patientActiveDataElement = "{ \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalPatientActive + "}";
+		String patientNewDataElement = "{ \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalPatientNew + "}";
+		String visitsDataElement = "{ \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalVisits + "}";
+		String systemStartupsDataElement = "{ \"dataElement\": \"q8LwlSrBOSj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + startupCount + "}";
+		String upTimeThisWeekDataElement = "{ \"dataElement\": \"CrZDptrDUqA\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + thisWeekUptime + "}";
+		String upTimeLastWeekDataElement = "{ \"dataElement\": \"h08FIw8cVUD\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + previousWeekUptime + "}";
+		String upTimeLastMonthDataElement = "{ \"dataElement\": \"q9MRIo5DX4I\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + previousMonthUptime + "}";
+		String freeMemoryDataElement = "{ \"dataElement\": \"ZPrLSHvWDm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + lastMemoryCapture()[0] + "}";
+		String totalMemoryDataElement = "{ \"dataElement\": \"FRANuyR9bKI\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + lastMemoryCapture()[1] + "}";
 		int usedMemo = lastMemoryCapture()[1] - lastMemoryCapture()[0];
-		String usedMemoryDataElement = "{ \"dataElement\": \"QZMqiNLOZNH\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + usedMemo + "}";
-		String totalOpenMRSUptimeDataElement = "{ \"dataElement\": \"OBJQIpvppBt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"BPZcHDS6OO0\", \"value\": " + openmrsUptimePercentage + "}";
+		String usedMemoryDataElement = "{ \"dataElement\": \"QZMqiNLOZNH\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + usedMemo + "}";
+		String totalOpenMRSUptimeDataElement = "{ \"dataElement\": \"OBJQIpvppBt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + openmrsUptimePercentage + "}";
 		String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  " + primaryClinicDaysDataElement + ",\n  " + primaryClinicHoursDataElement + ",\n  " + encounterDataElement + ",\n  " + obsDataElement + ",\n  " + userDataElement + ",\n  " + patientActiveDataElement + ",\n  " + patientNewDataElement + ",\n  " + visitsDataElement + ",\n  " + systemStartupsDataElement + ",\n  " + upTimeThisWeekDataElement + ",\n  " + upTimeLastWeekDataElement + ",\n  " + upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement + ",\n  " + totalMemoryDataElement + ",\n  " + totalOpenMRSUptimeDataElement  + ",\n  " + usedMemoryDataElement + "\n ]\n}";
 		File dhisDataJson = new File(dhisDataValuesFilePath);
 		
@@ -403,7 +405,7 @@ public class Emt {
 
 	private List<String> report(Date startDate, Date endDate,
 			String thisWeekUptime, String previousWeekUptime,
-			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName) {
+			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName, String dhisOrganizationUnitUid) {
 		
 		Uptime uptime = systemUptime(startDate, endDate);
 		Uptime openmrsUptime = openmrsUptime(startDate, endDate);
@@ -478,8 +480,8 @@ public class Emt {
 		int totalPatientNew = totalNewPatients(true);
 		int totalVisits = totalVisits(true);
 		
-		if(!dhisDataValuesFilePath.equals("") && !dhisDataValuesFilePath.equals(null)) {
-			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName);
+		if(dhisDataValuesFilePath != null && !dhisDataValuesFilePath.equals("") && dhisOrganizationUnitUid != null && !dhisOrganizationUnitUid.equals("")) {
+			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName, dhisOrganizationUnitUid);
 		}
 		return ss;
 	}
@@ -549,7 +551,7 @@ public class Emt {
 
 		// metadata
 		PDDocumentInformation info = document.getDocumentInformation();
-		info.setAuthor("Christian Neumann");
+		info.setAuthor("OpenMRS EMT");
 		info.setTitle("EMT Report");
 		// info.setSubject(subject);
 		info.setProducer("EMR Monitoring Tool");
