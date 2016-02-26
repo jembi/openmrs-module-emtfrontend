@@ -9,12 +9,14 @@
  */
 package org.openmrs.module.emtfrontend;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -39,6 +41,10 @@ import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+/**
+ * TODO support /usr/local/etc/EmrMonitoringTool/emt-to-dhis-mapping.txt configurations using emt frontend plus flosid or server/site id; but these links must only be available for admin users alone
+ *
+ */
 public class Emt {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private static SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
@@ -185,61 +191,135 @@ public class Emt {
 		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMMdd");
 		Date oneDayAgoDate = null;
 		String start01 = "", start02 = "";
+		File mappingsFile = new File("/usr/local/etc/EmrMonitoringTool/emt-to-dhis-mapping.txt");
 		
-		if(openmrsAPPName.equals("") || openmrsAPPName == null) {
-			openmrsAPPName = "openmrs";
-		}
-		
-		cal.setTime(today);//TODO must it be hard coded to one day range alone!!! or we use start and end dates
-		cal.add(Calendar.DAY_OF_YEAR, -1);
-		oneDayAgoDate = cal.getTime();
-		if(Integer.toString(clinicStart).length() == 3) {
-			start01 = "0";
-		}
-		if(Integer.toString(clinicStop).length() == 3) {
-			start02 = "0";
-		}
-		String clinicHours = start01 + clinicStart + " - " + start02 + clinicStop;
-		String period = dFormat.format(oneDayAgoDate) + " to " + dFormat.format(today);
-		String systemIdDataElement = "{ \"dataElement\": \"yBHJmoeteNR\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + systemId + "\"}";
-		String primaryClinicDaysDataElement = "{ \"dataElement\": \"rb9ef1D53Fv\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + clinicDays + "\"}";
-		String primaryClinicHoursDataElement = "{ \"dataElement\": \"VDEnb2bEQH3\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + clinicHours + "\"}";
-		String openMRSAppNameDataElement = "{ \"dataElement\": \"ec9fC1xmg8R\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": \"" + openmrsAPPName + "\"}";
-		String encounterDataElement = "{ \"dataElement\": \"RYe2tuO9njZ\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + encounterTotal + "}";
-		String obsDataElement = "{ \"dataElement\": \"NorJph8rRjt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + obsTotal + "}";
-		String userDataElement = "{ \"dataElement\": \"GKi8zBGuC3p\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalUsers + "}";
-		String patientActiveDataElement = "{ \"dataElement\": \"hk0HYxaBPtz\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalPatientActive + "}";
-		String patientNewDataElement = "{ \"dataElement\": \"aGdN2xl9nUj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalPatientNew + "}";
-		String visitsDataElement = "{ \"dataElement\": \"nqGCy0uyzm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + totalVisits + "}";
-		String systemStartupsDataElement = "{ \"dataElement\": \"q8LwlSrBOSj\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + startupCount + "}";
-		String upTimeThisWeekDataElement = "{ \"dataElement\": \"CrZDptrDUqA\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + thisWeekUptime + "}";
-		String upTimeLastWeekDataElement = "{ \"dataElement\": \"h08FIw8cVUD\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + previousWeekUptime + "}";
-		String upTimeLastMonthDataElement = "{ \"dataElement\": \"q9MRIo5DX4I\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + previousMonthUptime + "}";
-		String freeMemoryDataElement = "{ \"dataElement\": \"ZPrLSHvWDm8\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + lastMemoryCapture()[0] + "}";
-		String totalMemoryDataElement = "{ \"dataElement\": \"FRANuyR9bKI\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + lastMemoryCapture()[1] + "}";
-		int usedMemo = lastMemoryCapture()[1] - lastMemoryCapture()[0];
-		String usedMemoryDataElement = "{ \"dataElement\": \"QZMqiNLOZNH\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + usedMemo + "}";
-		String totalOpenMRSUptimeDataElement = "{ \"dataElement\": \"OBJQIpvppBt\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid +  "\", \"value\": " + openmrsUptimePercentage + "}";
-		String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  " + primaryClinicDaysDataElement + ",\n  " + primaryClinicHoursDataElement + ",\n  " + encounterDataElement + ",\n  " + obsDataElement + ",\n  " + userDataElement + ",\n  " + patientActiveDataElement + ",\n  " + patientNewDataElement + ",\n  " + visitsDataElement + ",\n  " + systemStartupsDataElement + ",\n  " + upTimeThisWeekDataElement + ",\n  " + upTimeLastWeekDataElement + ",\n  " + upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement + ",\n  " + totalMemoryDataElement + ",\n  " + totalOpenMRSUptimeDataElement  + ",\n  " + usedMemoryDataElement + "\n ]\n}";
-		File dhisDataJson = new File(dhisDataValuesFilePath);
-		
-		try {
-			FileOutputStream fop = new FileOutputStream(dhisDataJson);
-
-			// if file doesn't exists, then create it
-			if (!dhisDataJson.exists()) {
-					dhisDataJson.createNewFile();
+		if (mappingsFile.exists()) {
+			if (openmrsAPPName.equals("") || openmrsAPPName == null) {
+				openmrsAPPName = "openmrs";
 			}
-	
-			// get the content in bytes
-			byte[] contentInBytes = json.getBytes();
-	
-			fop.write(contentInBytes);
-			fop.flush();
-			fop.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			cal.setTime(today);//TODO must it be hard coded to one day range alone!!! or we use start and end dates
+			cal.add(Calendar.DAY_OF_YEAR, -1);
+			oneDayAgoDate = cal.getTime();
+			if (Integer.toString(clinicStart).length() == 3) {
+				start01 = "0";
+			}
+			if (Integer.toString(clinicStop).length() == 3) {
+				start02 = "0";
+			}
+			String clinicHours = start01 + clinicStart + " - " + start02 + clinicStop;
+			String period = dFormat.format(oneDayAgoDate) + " to " + dFormat.format(today);
+			String systemIdDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_systemId")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": \"" + systemId + "\"}";
+			String primaryClinicDaysDataElement = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_primaryCareDays") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + clinicDays + "\"}";
+			String primaryClinicHoursDataElement = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_primaryCareHours") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + clinicHours + "\"}";
+			String openMRSAppNameDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_openmrsAppName")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": \"" + openmrsAPPName + "\"}";
+			String encounterDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_totalEncounters")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + encounterTotal + "}";
+			String obsDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_totalObservations")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + obsTotal + "}";
+			String userDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_totalUsers")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + totalUsers + "}";
+			String patientActiveDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_totalPatientsActive")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + totalPatientActive + "}";
+			String patientNewDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_totalPatientsNew")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + totalPatientNew + "}";
+			String visitsDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_totalVisits")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + totalVisits + "}";
+			String systemStartupsDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_systemStartupCounts")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + startupCount + "}";
+			String upTimeThisWeekDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_systemUptime-thisWeek")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + thisWeekUptime + "}";
+			String upTimeLastWeekDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_systemUptime-lastWeek")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + previousWeekUptime + "}";
+			String upTimeLastMonthDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_systemUptime-lastMonth")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + previousMonthUptime + "}";
+			String freeMemoryDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_freeMemory")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + lastMemoryCapture()[0] + "}";
+			String totalMemoryDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_totalMemory")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + lastMemoryCapture()[1] + "}";
+			int usedMemo = lastMemoryCapture()[1] - lastMemoryCapture()[0];
+			String usedMemoryDataElement = "{ \"dataElement\": \"" + getDataElementUidFor("DATA-ELEMENT_usedMemory")
+					+ "\", \"period\": \"" + dFormat.format(today) + "\", \"orgUnit\": \"" + dhisOrganizationUnitUid
+					+ "\", \"value\": " + usedMemo + "}";
+			String totalOpenMRSUptimeDataElement = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_openmrsUptime") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + openmrsUptimePercentage
+					+ "}";
+			String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  "
+					+ primaryClinicDaysDataElement + ",\n  " + primaryClinicHoursDataElement + ",\n  "
+					+ encounterDataElement + ",\n  " + obsDataElement + ",\n  " + userDataElement + ",\n  "
+					+ patientActiveDataElement + ",\n  " + patientNewDataElement + ",\n  " + visitsDataElement + ",\n  "
+					+ systemStartupsDataElement + ",\n  " + upTimeThisWeekDataElement + ",\n  "
+					+ upTimeLastWeekDataElement + ",\n  " + upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement
+					+ ",\n  " + totalMemoryDataElement + ",\n  " + totalOpenMRSUptimeDataElement + ",\n  "
+					+ usedMemoryDataElement + "\n ]\n}";
+			File dhisDataJson = new File(dhisDataValuesFilePath);
+			try {
+				FileOutputStream fop = new FileOutputStream(dhisDataJson);
+
+				// if file doesn't exists, then create it
+				if (!dhisDataJson.exists()) {
+					dhisDataJson.createNewFile();
+				}
+
+				// get the content in bytes
+				byte[] contentInBytes = json.getBytes();
+
+				fop.write(contentInBytes);
+				fop.flush();
+				fop.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
 		}
+	}
+	
+	private String getDataElementUidFor(String emtDataElementCode) {
+		String dataElementUid = null;
+		String emtMappingsFilePath = "/usr/local/etc/EmrMonitoringTool/emt-to-dhis-mapping.txt";
+		File emtMappingsFile = new File(emtMappingsFilePath);
+		FileInputStream fis;
+		BufferedReader br;
+		
+		if (emtMappingsFile.exists() && emtDataElementCode != null && emtDataElementCode != "" && emtDataElementCode.startsWith("DATA-ELEMENT_")) {
+			try {
+				fis = new FileInputStream(emtMappingsFile);
+				br = new BufferedReader(new InputStreamReader(fis));
+				String line = null;
+				
+				while ((line = br.readLine()) != null) {
+					if(line.startsWith(emtDataElementCode)) {
+						dataElementUid = line.replace(emtDataElementCode + "=", "");
+					}
+				}
+
+				br.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
+		}
+		return dataElementUid;
 	}
 
 	public static void hmisExport(String[] args) {
@@ -487,7 +567,7 @@ public class Emt {
 	}
 
 	private String emtVersion() {
-		return "1.1-SNAPSHOT";
+		return "1.1";
 	}
 
 	private int totalEncounters(boolean atStart) {

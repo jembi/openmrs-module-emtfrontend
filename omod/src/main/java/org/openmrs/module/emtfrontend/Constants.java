@@ -90,7 +90,7 @@ public class Constants {
 	}
 
 	private static String getEMTVersion() {
-		String version = "1.1-SNAPSHOT";
+		String version = "1.1";
 		
 		if(ModuleFactory.getModuleById("emtfrontend") != null && StringUtils.isNotBlank(ModuleFactory.getModuleById("emtfrontend").getVersion())) {
 			version = ModuleFactory.getModuleById("emtfrontend").getVersion();
