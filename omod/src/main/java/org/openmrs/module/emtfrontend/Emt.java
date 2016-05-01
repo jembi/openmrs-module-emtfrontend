@@ -43,7 +43,6 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 /**
  * TODO support /usr/local/etc/EmrMonitoringTool/emt-to-dhis-mapping.txt configurations using emt frontend plus flosid or server/site id; but these links must only be available for admin users alone
- *
  */
 public class Emt {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
@@ -54,6 +53,9 @@ public class Emt {
 	private static int openmrsHeartbeatCronjobIntervallInMinutes = 15;
 	private static int firstOpenmrsHeartbeatCronjobStartsAtMinute = 2;
 
+/**
+ * Avoid using extra java libraries here since emtfrontend library is embedded in emt backend command line tool
+ */
 	public static void main(String[] args) {
 		try {
 			Date startDate = shortDf.parse(args[0]);
@@ -81,6 +83,9 @@ public class Emt {
 			endDate = c.getTime();
 
 			String emtLog = args[2];
+			String emtPatientLog = emtLog.replace("emt.log", "emt-patient.log");
+			Integer[] viralLoadTestResults = extractViralLoadTestResultsCountFromLog(emtPatientLog);
+			
 			Emt emt = new Emt();
 			emt.parseLog(startDate, endDate, emtLog);
 
@@ -150,7 +155,7 @@ public class Emt {
 					+ df.format(end)
 					+ ")";
 			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
-					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName, dhisOrganizationUnitUid);
+					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults);
 			System.out.println(s);
 			String emtPdfOutput = args[3];
 			emt.generatePdfReport(s, startDate, endDate, emtPdfOutput);
@@ -172,7 +177,7 @@ public class Emt {
 	 * @param openmrsUptime 
 	 * @param heartbeats 
 	 */
-	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid) {
+	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults) {
 		/*	DATA ELEMENTS:
 		 	name ___ uid
 			Encounters ___ RYe2tuO9njZ
@@ -264,10 +269,23 @@ public class Emt {
 					+ getDataElementUidFor("DATA-ELEMENT_openmrsUptime") + "\", \"period\": \"" + dFormat.format(today)
 					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + openmrsUptimePercentage
 					+ "}";
+			String viralLoadTestResults_everDataElement = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_patientsViralLoadTestResults_ever") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + viralLoadTestResults[0]
+					+ "}";
+			String viralLoadTestResults_last6MonthsDataElement = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_patientsViralLoadTestResults_last6Months") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + viralLoadTestResults[1]
+					+ "}";
+			String viralLoadTestResults_lastYearDataElement = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_patientsViralLoadTestResults_LastYear") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + viralLoadTestResults[2]
+					+ "}";
 			String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  "
 					+ primaryClinicDaysDataElement + ",\n  " + primaryClinicHoursDataElement + ",\n  "
 					+ encounterDataElement + ",\n  " + obsDataElement + ",\n  " + userDataElement + ",\n  "
 					+ patientActiveDataElement + ",\n  " + patientNewDataElement + ",\n  " + visitsDataElement + ",\n  "
+					+ viralLoadTestResults_everDataElement + ",\n  " + viralLoadTestResults_last6MonthsDataElement + ",\n  " + viralLoadTestResults_lastYearDataElement + ",\n  "
 					+ systemStartupsDataElement + ",\n  " + upTimeThisWeekDataElement + ",\n  "
 					+ upTimeLastWeekDataElement + ",\n  " + upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement
 					+ ",\n  " + totalMemoryDataElement + ",\n  " + totalOpenMRSUptimeDataElement + ",\n  "
@@ -485,7 +503,7 @@ public class Emt {
 
 	private List<String> report(Date startDate, Date endDate,
 			String thisWeekUptime, String previousWeekUptime,
-			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName, String dhisOrganizationUnitUid) {
+			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults) {
 		
 		Uptime uptime = systemUptime(startDate, endDate);
 		Uptime openmrsUptime = openmrsUptime(startDate, endDate);
@@ -543,6 +561,11 @@ public class Emt {
 				+ (totalVisits(false) - totalVisits(true)) + " - "
 				+ totalVisits(false));
 		ss.add("\nLast local OpenMRS backup (5): " + lastOpenMRSBackup(installDirectory));
+		
+		ss.add("\nNumber of Patients with Viral Load Test Result (ever): " + viralLoadTestResults[0]);
+		ss.add("\nNumber of Patients with Viral Load Test Result within last six months: " + viralLoadTestResults[1]);
+		ss.add("\nNumber of Patients with Viral Load Test Result within last year: " + viralLoadTestResults[2]);
+		
 		ss.add("");
 		ss.add("\n____");
 		ss.add("");
@@ -561,13 +584,13 @@ public class Emt {
 		int totalVisits = totalVisits(true);
 		
 		if(dhisDataValuesFilePath != null && !dhisDataValuesFilePath.equals("") && dhisOrganizationUnitUid != null && !dhisOrganizationUnitUid.equals("")) {
-			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName, dhisOrganizationUnitUid);
+			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults);
 		}
 		return ss;
 	}
 
 	private String emtVersion() {
-		return "1.2-SNAPSHOT";
+		return "1.1";
 	}
 
 	private int totalEncounters(boolean atStart) {
@@ -773,5 +796,41 @@ public class Emt {
 		uptime.calcHeartbearts(startDate, endDate, openmrsHeartbeats, openmrsHeartbeatCronjobIntervallInMinutes, firstOpenmrsHeartbeatCronjobStartsAtMinute);
 		uptime.calcPercentage();
 		return uptime;
+	}
+	
+	private static Integer[] extractViralLoadTestResultsCountFromLog(String logPath) throws IOException {
+		Integer[] ever6monthsOneYearCounts = new Integer[3];
+		File logFile = new File(logPath);
+		
+		if (logFile.exists()) {
+			FileInputStream fis = new FileInputStream(logFile);
+			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+			String noneReverdLine = null;
+			ArrayList<String> list = new ArrayList<String>();
+			while ((noneReverdLine = br.readLine()) != null) {
+				list.add(noneReverdLine);
+			}
+			br.close();
+			Collections.reverse(list);//read file from tail to get last entry
+			for (String line : list) {
+				if (line.startsWith("PATIENTS_WITH_VIRAL_LOAD_TEST_RESULTS(EVER,LAST6MONTHS,LASTYEAR);")) {
+					String viralLoadTestResults = line.split(":::")[1];
+					
+					if (viralLoadTestResults != null && !viralLoadTestResults.equals("")) {
+						Integer viralLoads_ever = viralLoadTestResults.split(";")[0] != null
+								? Integer.parseInt(viralLoadTestResults.split(";")[0]) : 0;
+						Integer viralLoads_6Months = viralLoadTestResults.split(";")[1] != null
+								? Integer.parseInt(viralLoadTestResults.split(";")[1]) : 0;
+						Integer viralLoads_oneYear = viralLoadTestResults.split(";")[2] != null
+								? Integer.parseInt(viralLoadTestResults.split(";")[2]) : 0;
+						ever6monthsOneYearCounts[0] = viralLoads_ever;
+						ever6monthsOneYearCounts[1] = viralLoads_6Months;
+						ever6monthsOneYearCounts[2] = viralLoads_oneYear;
+					}
+					break;
+				}
+			} 
+		}
+		return ever6monthsOneYearCounts;
 	}
 }
