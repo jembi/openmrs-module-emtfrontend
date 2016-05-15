@@ -64,6 +64,7 @@ public class Emt {
 			String installDirectory = dhisDataValuesFilePath.replace("dhis-emt-datasetValueSets.json", "");
 			String openmrsAPPName = args[5];
 			String dhisOrganizationUnitUid = args[6];
+			SystemInfo systemInfo = new SystemInfo(args[7]);
 			
 			if (startDate.after(endDate)) {
 				// swap start and end date if start date after end date
@@ -155,7 +156,7 @@ public class Emt {
 					+ df.format(end)
 					+ ")";
 			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
-					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults);
+					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults, systemInfo);
 			System.out.println(s);
 			String emtPdfOutput = args[3];
 			emt.generatePdfReport(s, startDate, endDate, emtPdfOutput);
@@ -177,7 +178,7 @@ public class Emt {
 	 * @param openmrsUptime 
 	 * @param heartbeats 
 	 */
-	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults) {
+	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults, SystemInfo systemInfo) {
 		/*	DATA ELEMENTS:
 		 	name ___ uid
 			Encounters ___ RYe2tuO9njZ
@@ -281,14 +282,92 @@ public class Emt {
 					+ getDataElementUidFor("DATA-ELEMENT_patientsViralLoadTestResults_LastYear") + "\", \"period\": \"" + dFormat.format(today)
 					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + viralLoadTestResults[2]
 					+ "}";
+			String systemInfo_operatingSystem = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_operatingSystem") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.operatingSystem
+					+ "}";
+			String systemInfo_operatingSystemArch = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_operatingSystemArch") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.operatingSystemArch
+					+ "}";
+			String systemInfo_operatingSystemVersion = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_operatingSystemVersion") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.operatingSystemVersion
+					+ "}";
+			String systemInfo_javaVersion = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaVersion") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaVersion
+					+ "}";
+			String systemInfo_javaVendor = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaVendor") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaVendor
+					+ "}";
+			String systemInfo_jvmVersion = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_jvmVersion") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.jvmVersion
+					+ "}";
+			String systemInfo_jvmVendor = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_jvmVendor") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.jvmVendor
+					+ "}";
+			String systemInfo_javaRuntimeName = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaRuntimeName") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaRuntimeName
+					+ "}";
+			String systemInfo_javaRuntimeVersion = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaRuntimeVersion") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaRuntimeVersion
+					+ "}";
+			String systemInfo_userName = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_userName") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.userName
+					+ "}";
+			String systemInfo_systemLanguage = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_systemLanguage") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.systemLanguage
+					+ "}";
+			String systemInfo_systemTimezone = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_systemTimezone") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.systemTimezone
+					+ "}";
+			String systemInfo_fileSystemEncoding = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_fileSystemEncoding") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.fileSystemEncoding
+					+ "}";
+			String systemInfo_userDirectory = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_userDirectory") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.userDirectory
+					+ "}";
+			String systemInfo_tempDirectory = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_tempDirectory") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.tempDirectory
+					+ "}";
+			String systemInfo_openMRSVersion = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_openMRSVersion") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getOpenMRSVersion()
+					+ "}";
+			String systemInfo_loadedModules = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_loadedModules") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getLoadedModulesString()
+					+ "}";
+			
 			String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  "
 					+ primaryClinicDaysDataElement + ",\n  " + primaryClinicHoursDataElement + ",\n  "
 					+ encounterDataElement + ",\n  " + obsDataElement + ",\n  " + userDataElement + ",\n  "
 					+ patientActiveDataElement + ",\n  " + patientNewDataElement + ",\n  " + visitsDataElement + ",\n  "
-					+ viralLoadTestResults_everDataElement + ",\n  " + viralLoadTestResults_last6MonthsDataElement + ",\n  " + viralLoadTestResults_lastYearDataElement + ",\n  "
-					+ systemStartupsDataElement + ",\n  " + upTimeThisWeekDataElement + ",\n  "
-					+ upTimeLastWeekDataElement + ",\n  " + upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement
-					+ ",\n  " + totalMemoryDataElement + ",\n  " + totalOpenMRSUptimeDataElement + ",\n  "
+					+ viralLoadTestResults_everDataElement + ",\n  " + viralLoadTestResults_last6MonthsDataElement
+					+ ",\n  " + viralLoadTestResults_lastYearDataElement + ",\n  " + systemStartupsDataElement + ",\n  "
+					+ upTimeThisWeekDataElement + ",\n  " + upTimeLastWeekDataElement + ",\n  "
+					+ upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement + ",\n  " + totalMemoryDataElement
+					+ ",\n  " + totalOpenMRSUptimeDataElement + ",\n  " + systemInfo_operatingSystem + ",\n  "
+					+ systemInfo_operatingSystemArch + ",\n  " + systemInfo_operatingSystemVersion + ",\n  "
+					+ systemInfo_javaVersion + ",\n  " + systemInfo_javaVendor + ",\n  "
+					+ systemInfo_jvmVersion + ",\n  " + systemInfo_jvmVendor + ",\n  "
+					+ systemInfo_javaRuntimeName + ",\n  " + systemInfo_javaRuntimeVersion + ",\n  "
+					+ systemInfo_userName + ",\n  " + systemInfo_systemLanguage + ",\n  "
+					+ systemInfo_systemTimezone + ",\n  " + systemInfo_fileSystemEncoding + ",\n  "
+					+ systemInfo_userDirectory + ",\n  " + systemInfo_tempDirectory + ",\n  "
+					+ systemInfo_openMRSVersion + ",\n  " + systemInfo_loadedModules + ",\n  "
 					+ usedMemoryDataElement + "\n ]\n}";
 			File dhisDataJson = new File(dhisDataValuesFilePath);
 			try {
@@ -352,7 +431,7 @@ public class Emt {
 			c = Calendar.getInstance();
 			c.setTime(date);
 			c.set(Calendar.DAY_OF_MONTH, 1);
-//			c.add(Calendar.MONTH, -1);
+			//c.add(Calendar.MONTH, -1);
 			c.set(Calendar.HOUR_OF_DAY, 0);
 			c.set(Calendar.MINUTE, 0);
 			c.set(Calendar.SECOND, 0);
@@ -389,11 +468,9 @@ public class Emt {
 			w.close();
 			os.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -438,6 +515,8 @@ public class Emt {
 	List<Heartbeatable> heartbeats = new ArrayList<Heartbeatable>();
 	List<Heartbeatable> openmrsHeartbeats = new ArrayList<Heartbeatable>();
 
+
+	@SuppressWarnings("resource")
 	private void parseLog(Date startDate, Date endDate, String emtLog)
 			throws FileNotFoundException {
 		File emt = new File(emtLog);
@@ -503,7 +582,7 @@ public class Emt {
 
 	private List<String> report(Date startDate, Date endDate,
 			String thisWeekUptime, String previousWeekUptime,
-			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults) {
+			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults, SystemInfo systemInfo) {
 		
 		Uptime uptime = systemUptime(startDate, endDate);
 		Uptime openmrsUptime = openmrsUptime(startDate, endDate);
@@ -574,7 +653,27 @@ public class Emt {
 		ss.add("\n(3) new during period in OpenMRS database (not voided or retired)");
 		ss.add("\n(4) total ever in OpenMRS database (not voided or retired)");
 		ss.add("\n(5) in " + installDirectory + "backups");
-
+		ss.add("");
+		ss.add("\n");
+		ss.add("Operating System: " + systemInfo.operatingSystem);
+		ss.add("Operating System Arch: " + systemInfo.operatingSystemArch);
+		ss.add("Operating System Version: " + systemInfo.operatingSystemVersion);
+		ss.add("Java Version: " + systemInfo.javaVersion);
+		ss.add("Java Vendor: " + systemInfo.javaVendor);
+		ss.add("Jvm Version: " + systemInfo.jvmVersion);
+		ss.add("Jvm Vendor: " + systemInfo.jvmVendor);
+		ss.add("Java Runtime Name: " + systemInfo.javaRuntimeName);
+		ss.add("Java Runtime Version: " + systemInfo.javaRuntimeVersion);
+		ss.add("User Name: " + systemInfo.userName);
+		ss.add("System Language: " + systemInfo.systemLanguage);
+		ss.add("System Timezone: " + systemInfo.systemTimezone);
+		ss.add("File System Encoding: " + systemInfo.fileSystemEncoding);
+		ss.add("User Directory: " + systemInfo.userDirectory);
+		ss.add("Temp Directory: " + systemInfo.tempDirectory);
+		ss.add("Operating System: " + systemInfo.operatingSystem);
+		ss.add("OpenMRS Platform Version: " + systemInfo.getOpenMRSVersion());
+		ss.add("OpenMRS Loaded Modules: " + systemInfo.getLoadedModulesString());
+		
 		//TODO update after hearing from @Christian
 		int obsTotal = totalObs(true);
 		int encounterTotal = totalEncounters(true);
@@ -584,7 +683,7 @@ public class Emt {
 		int totalVisits = totalVisits(true);
 		
 		if(dhisDataValuesFilePath != null && !dhisDataValuesFilePath.equals("") && dhisOrganizationUnitUid != null && !dhisOrganizationUnitUid.equals("")) {
-			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults);
+			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults, systemInfo);
 		}
 		return ss;
 	}
