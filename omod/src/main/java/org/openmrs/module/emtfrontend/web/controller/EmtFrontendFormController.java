@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Location;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.emtfrontend.Constants;
 import org.openmrs.module.emtfrontend.Emt;
 import org.openmrs.util.OpenmrsConstants;
@@ -141,22 +142,8 @@ public class EmtFrontendFormController {
 
 	private void invokeNormalEmt(String start, String end, String log,
 			String tempFilename, String dhisDatasetValuesets) {
-		String[] args = { start, end, log, tempFilename, dhisDatasetValuesets, WebConstants.WEBAPP_NAME, null };
+		String[] args = { start, end, log, tempFilename, dhisDatasetValuesets, WebConstants.WEBAPP_NAME, null, "oVersion:" + OpenmrsConstants.OPENMRS_VERSION + ";oModulesFolderPath:" + ModuleUtil.getModuleRepository() };
 		Emt.main(args);
-	}
-
-	private void invokeJarFromCustomCloassloader() {
-		// http://www.coderanch.com/t/529764/java/java/run-jar-java-application
-	}
-
-	private void invokeExternalProcess() throws IOException {
-		// most likely not clever as external processes forked from java require
-		// again
-		// the same amount of assigned memory, thus doubling the -Xmx settings.
-		String s = Constants.RUNTIME_DIR + "/shell-backend/generate-example-report.sh";
-		Process pro2 = Runtime.getRuntime().exec(s);
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				pro2.getInputStream()));
 	}
 
 	private void returnPdf(HttpServletResponse response, File pdfFile,

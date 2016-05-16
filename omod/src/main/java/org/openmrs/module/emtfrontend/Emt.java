@@ -199,6 +199,7 @@ public class Emt {
 		String start01 = "", start02 = "";
 		File mappingsFile = new File("/usr/local/etc/EmrMonitoringTool/emt-to-dhis-mapping.txt");
 		
+		//TODO restructure or refactor this file as; http://dhis2.github.io/dhis2-docs/master/en/developer/html/dhis2_developer_manual_full.html#d6543e3472
 		if (mappingsFile.exists()) {
 			if (openmrsAPPName.equals("") || openmrsAPPName == null) {
 				openmrsAPPName = "openmrs";
@@ -330,6 +331,10 @@ public class Emt {
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_systemTimezone") + "\", \"period\": \"" + dFormat.format(today)
 					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.systemTimezone
 					+ "}";
+			String systemInfo_systemDateTime = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_systemDateTime") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getSystemDateTime()
+					+ "}";
 			String systemInfo_fileSystemEncoding = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_fileSystemEncoding") + "\", \"period\": \"" + dFormat.format(today)
 					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.fileSystemEncoding
@@ -346,9 +351,9 @@ public class Emt {
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_openMRSVersion") + "\", \"period\": \"" + dFormat.format(today)
 					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getOpenMRSVersion()
 					+ "}";
-			String systemInfo_loadedModules = "{ \"dataElement\": \""
-					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_loadedModules") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getLoadedModulesString()
+			String systemInfo_installedModules = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_installedModules") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getinstalledModulesString()
 					+ "}";
 			
 			String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  "
@@ -366,9 +371,9 @@ public class Emt {
 					+ systemInfo_javaRuntimeName + ",\n  " + systemInfo_javaRuntimeVersion + ",\n  "
 					+ systemInfo_userName + ",\n  " + systemInfo_systemLanguage + ",\n  "
 					+ systemInfo_systemTimezone + ",\n  " + systemInfo_fileSystemEncoding + ",\n  "
-					+ systemInfo_userDirectory + ",\n  " + systemInfo_tempDirectory + ",\n  "
-					+ systemInfo_openMRSVersion + ",\n  " + systemInfo_loadedModules + ",\n  "
-					+ usedMemoryDataElement + "\n ]\n}";
+					+ systemInfo_systemDateTime + ",\n  " + systemInfo_userDirectory + ",\n  "
+					+ systemInfo_tempDirectory + ",\n  " + systemInfo_openMRSVersion + ",\n  "
+					+ systemInfo_installedModules + ",\n  " + usedMemoryDataElement + "\n ]\n}";
 			File dhisDataJson = new File(dhisDataValuesFilePath);
 			try {
 				FileOutputStream fop = new FileOutputStream(dhisDataJson);
@@ -667,12 +672,13 @@ public class Emt {
 		ss.add("User Name: " + systemInfo.userName);
 		ss.add("System Language: " + systemInfo.systemLanguage);
 		ss.add("System Timezone: " + systemInfo.systemTimezone);
+		ss.add("System DateTime: " + systemInfo.getSystemDateTime());
 		ss.add("File System Encoding: " + systemInfo.fileSystemEncoding);
 		ss.add("User Directory: " + systemInfo.userDirectory);
 		ss.add("Temp Directory: " + systemInfo.tempDirectory);
 		ss.add("Operating System: " + systemInfo.operatingSystem);
 		ss.add("OpenMRS Platform Version: " + systemInfo.getOpenMRSVersion());
-		ss.add("OpenMRS Loaded Modules: " + systemInfo.getLoadedModulesString());
+		ss.add("OpenMRS Loaded Modules: " + systemInfo.getinstalledModulesString());
 		
 		//TODO update after hearing from @Christian
 		int obsTotal = totalObs(true);

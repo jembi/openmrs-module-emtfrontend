@@ -2,6 +2,7 @@ package org.openmrs.module.emtfrontend;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,9 +25,9 @@ public class SystemInfo {
 	public String userDirectory = properties.getProperty("user.dir");
 	public String tempDirectory = properties.getProperty("java.io.tmpdir");
 	private String openMRSVersion;
-	private List<List<String>> loadedModules;
+	private List<List<String>> installedModules;
 	private String oModulesFolderPath;
-	private String loadedModulesString;
+	private String installedModulesString;
 
 	public SystemInfo(String openmrsSpecificInfo) {
 		setOpenmrsSpecificInfo(openmrsSpecificInfo);
@@ -57,30 +58,30 @@ public class SystemInfo {
 		this.openMRSVersion = openMRSVersion;
 	}
 
-	public List<List<String>> getLoadedModules() {
-		if(loadedModules == null) {
-			this.loadedModules = new ArrayList<List<String>>();
+	public List<List<String>> getinstalledModules() {
+		if(installedModules == null) {
+			this.installedModules = new ArrayList<List<String>>();
 		}
-		return loadedModules;
+		return installedModules;
 	}
 
-	public void setLoadedModules(List<List<String>> loadedModules) {
-		this.loadedModules = loadedModules;
+	public void setinstalledModules(List<List<String>> installedModules) {
+		this.installedModules = installedModules;
 	}
 	
 	public void addLoadedModule(List<String> moduleNameAndVersion) {
-		getLoadedModules().add(moduleNameAndVersion);
+		getinstalledModules().add(moduleNameAndVersion);
 	}
 
-	public String getLoadedModulesString() {
-		if(loadedModulesString == null) {
-			this.loadedModulesString = "";
+	public String getinstalledModulesString() {
+		if(installedModulesString == null) {
+			this.installedModulesString = "";
 		}
-		return loadedModulesString;
+		return installedModulesString;
 	}
 
-	public void setLoadedModulesString(String loadedModulesString) {
-		this.loadedModulesString = loadedModulesString;
+	public void setinstalledModulesString(String installedModulesString) {
+		this.installedModulesString = installedModulesString;
 	}
 
 	public String getModulesFolderPath() {
@@ -105,10 +106,14 @@ public class SystemInfo {
 					
 					module.add(moduleId);
 					module.add(moduleVersion);
-					getLoadedModules().add(module);
-					setLoadedModulesString(getLoadedModulesString().equals("") ? getLoadedModulesString() + modules[i].getName().replace(".omod", "") : getLoadedModulesString() + "," + modules[i].getName().replace(".omod", ""));
+					getinstalledModules().add(module);
+					setinstalledModulesString(getinstalledModulesString().equals("") ? getinstalledModulesString() + modules[i].getName().replace(".omod", "") : getinstalledModulesString() + ", " + modules[i].getName().replace(".omod", ""));
 				}
 			}
 		}
+	}
+
+	public String getSystemDateTime() {
+		return (new Date()).toString();
 	}
 }
