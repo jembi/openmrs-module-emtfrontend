@@ -284,77 +284,77 @@ public class Emt {
 					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + viralLoadTestResults[2]
 					+ "}";
 			String systemInfo_operatingSystem = "{ \"dataElement\": \""
-					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_operatingSystem") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.operatingSystem
-					+ "}";
+					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_operatingSystemName") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.operatingSystem
+					+ "\"}";
 			String systemInfo_operatingSystemArch = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_operatingSystemArch") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.operatingSystemArch
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.operatingSystemArch
+					+ "\"}";
 			String systemInfo_operatingSystemVersion = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_operatingSystemVersion") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.operatingSystemVersion
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.operatingSystemVersion
+					+ "\"}";
 			String systemInfo_javaVersion = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaVersion") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaVersion
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.javaVersion
+					+ "\"}";
 			String systemInfo_javaVendor = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaVendor") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaVendor
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.javaVendor
+					+ "\"}";
 			String systemInfo_jvmVersion = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_jvmVersion") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.jvmVersion
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.jvmVersion
+					+ "\"}";
 			String systemInfo_jvmVendor = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_jvmVendor") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.jvmVendor
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.jvmVendor
+					+ "\"}";
 			String systemInfo_javaRuntimeName = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaRuntimeName") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaRuntimeName
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.javaRuntimeName
+					+ "\"}";
 			String systemInfo_javaRuntimeVersion = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_javaRuntimeVersion") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.javaRuntimeVersion
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.javaRuntimeVersion
+					+ "\"}";
 			String systemInfo_userName = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_userName") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.userName
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.userName
+					+ "\"}";
 			String systemInfo_systemLanguage = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_systemLanguage") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.systemLanguage
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.systemLanguage
+					+ "\"}";
 			String systemInfo_systemTimezone = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_systemTimezone") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.systemTimezone
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.systemTimezone
+					+ "\"}";
 			String systemInfo_systemDateTime = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_systemDateTime") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getSystemDateTime()
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.getSystemDateTime()
+					+ "\"}";
 			String systemInfo_fileSystemEncoding = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_fileSystemEncoding") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.fileSystemEncoding
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.fileSystemEncoding
+					+ "\"}";
 			String systemInfo_userDirectory = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_userDirectory") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.userDirectory
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.userDirectory
+					+ "\"}";
 			String systemInfo_tempDirectory = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_tempDirectory") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.tempDirectory
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.tempDirectory
+					+ "\"}";
 			String systemInfo_openMRSVersion = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_openMRSVersion") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getOpenMRSVersion()
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.getOpenMRSVersion()
+					+ "\"}";
 			String systemInfo_installedModules = "{ \"dataElement\": \""
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_installedModules") + "\", \"period\": \"" + dFormat.format(today)
-					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": " + systemInfo.getinstalledModulesString()
-					+ "}";
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.getinstalledModulesString()
+					+ "\"}";
 			
 			String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  "
 					+ primaryClinicDaysDataElement + ",\n  " + primaryClinicHoursDataElement + ",\n  "
@@ -364,8 +364,8 @@ public class Emt {
 					+ ",\n  " + viralLoadTestResults_lastYearDataElement + ",\n  " + systemStartupsDataElement + ",\n  "
 					+ upTimeThisWeekDataElement + ",\n  " + upTimeLastWeekDataElement + ",\n  "
 					+ upTimeLastMonthDataElement + ",\n  " + freeMemoryDataElement + ",\n  " + totalMemoryDataElement
-					+ ",\n  " + totalOpenMRSUptimeDataElement + ",\n  " + systemInfo_operatingSystem + ",\n  "
-					+ systemInfo_operatingSystemArch + ",\n  " + systemInfo_operatingSystemVersion + ",\n  "
+					+ ",\n  " + totalOpenMRSUptimeDataElement + ",\n  " + usedMemoryDataElement + ",\n  "
+					+ systemInfo_operatingSystem + ",\n  " + systemInfo_operatingSystemArch + ",\n  " + systemInfo_operatingSystemVersion + ",\n  "
 					+ systemInfo_javaVersion + ",\n  " + systemInfo_javaVendor + ",\n  "
 					+ systemInfo_jvmVersion + ",\n  " + systemInfo_jvmVendor + ",\n  "
 					+ systemInfo_javaRuntimeName + ",\n  " + systemInfo_javaRuntimeVersion + ",\n  "
@@ -373,7 +373,7 @@ public class Emt {
 					+ systemInfo_systemTimezone + ",\n  " + systemInfo_fileSystemEncoding + ",\n  "
 					+ systemInfo_systemDateTime + ",\n  " + systemInfo_userDirectory + ",\n  "
 					+ systemInfo_tempDirectory + ",\n  " + systemInfo_openMRSVersion + ",\n  "
-					+ systemInfo_installedModules + ",\n  " + usedMemoryDataElement + "\n ]\n}";
+					+ systemInfo_installedModules + "\n ]\n}";
 			File dhisDataJson = new File(dhisDataValuesFilePath);
 			try {
 				FileOutputStream fop = new FileOutputStream(dhisDataJson);
@@ -402,7 +402,7 @@ public class Emt {
 		FileInputStream fis;
 		BufferedReader br;
 		
-		if (emtMappingsFile.exists() && emtDataElementCode != null && emtDataElementCode != "" && emtDataElementCode.startsWith("DATA-ELEMENT_")) {
+		if (emtMappingsFile.exists() && emtDataElementCode != null && !emtDataElementCode.equals("") && emtDataElementCode.startsWith("DATA-ELEMENT_")) {
 			try {
 				fis = new FileInputStream(emtMappingsFile);
 				br = new BufferedReader(new InputStreamReader(fis));
@@ -661,24 +661,24 @@ public class Emt {
 		ss.add("");
 		ss.add("\n");
 		ss.add("Operating System: " + systemInfo.operatingSystem);
-		ss.add("Operating System Arch: " + systemInfo.operatingSystemArch);
-		ss.add("Operating System Version: " + systemInfo.operatingSystemVersion);
-		ss.add("Java Version: " + systemInfo.javaVersion);
-		ss.add("Java Vendor: " + systemInfo.javaVendor);
-		ss.add("Jvm Version: " + systemInfo.jvmVersion);
-		ss.add("Jvm Vendor: " + systemInfo.jvmVendor);
-		ss.add("Java Runtime Name: " + systemInfo.javaRuntimeName);
-		ss.add("Java Runtime Version: " + systemInfo.javaRuntimeVersion);
-		ss.add("User Name: " + systemInfo.userName);
-		ss.add("System Language: " + systemInfo.systemLanguage);
-		ss.add("System Timezone: " + systemInfo.systemTimezone);
-		ss.add("System DateTime: " + systemInfo.getSystemDateTime());
-		ss.add("File System Encoding: " + systemInfo.fileSystemEncoding);
-		ss.add("User Directory: " + systemInfo.userDirectory);
-		ss.add("Temp Directory: " + systemInfo.tempDirectory);
-		ss.add("Operating System: " + systemInfo.operatingSystem);
-		ss.add("OpenMRS Platform Version: " + systemInfo.getOpenMRSVersion());
-		ss.add("OpenMRS Loaded Modules: " + systemInfo.getinstalledModulesString());
+		ss.add("\nOperating System Arch: " + systemInfo.operatingSystemArch);
+		ss.add("\nOperating System Version: " + systemInfo.operatingSystemVersion);
+		ss.add("\nJava Version: " + systemInfo.javaVersion);
+		ss.add("\nJava Vendor: " + systemInfo.javaVendor);
+		ss.add("\nJvm Version: " + systemInfo.jvmVersion);
+		ss.add("\nJvm Vendor: " + systemInfo.jvmVendor);
+		ss.add("\nJava Runtime Name: " + systemInfo.javaRuntimeName);
+		ss.add("\nJava Runtime Version: " + systemInfo.javaRuntimeVersion);
+		ss.add("\nUser Name: " + systemInfo.userName);
+		ss.add("\nSystem Language: " + systemInfo.systemLanguage);
+		ss.add("\nSystem Timezone: " + systemInfo.systemTimezone);
+		ss.add("\nSystem DateTime: " + systemInfo.getSystemDateTime());
+		ss.add("\nFile System Encoding: " + systemInfo.fileSystemEncoding);
+		ss.add("\nUser Directory: " + systemInfo.userDirectory);
+		ss.add("\nTemp Directory: " + systemInfo.tempDirectory);
+		ss.add("\nOperating System: " + systemInfo.operatingSystem);
+		ss.add("\nOpenMRS Platform Version: " + systemInfo.getOpenMRSVersion());
+		ss.add("\nOpenMRS Loaded Modules: " + systemInfo.getinstalledModulesString());
 		
 		//TODO update after hearing from @Christian
 		int obsTotal = totalObs(true);
