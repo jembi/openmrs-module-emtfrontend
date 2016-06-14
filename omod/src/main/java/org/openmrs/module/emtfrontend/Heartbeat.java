@@ -16,12 +16,12 @@ import java.util.StringTokenizer;
 
 public class Heartbeat implements Heartbeatable {
 	private Date date = null;
-	public int numberProcessors = -1;
-	public double loadAverage1Min = -1;
-	public double loadAverage5Min = -1;
-	public double loadAverage15Min = -1;
-	public int totalMemory = -1;
-	public int freeMemory = -1;
+	public int numberProcessors = 0;
+	public double loadAverage1Min = 0;
+	public double loadAverage5Min = 0;
+	public double loadAverage15Min = 0;
+	public int totalMemory = 0;
+	public int freeMemory = 0;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
 	public Heartbeat(String timestamp, StringTokenizer st)

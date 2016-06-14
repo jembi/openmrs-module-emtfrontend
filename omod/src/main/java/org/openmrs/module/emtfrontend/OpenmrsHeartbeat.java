@@ -20,13 +20,13 @@ public class OpenmrsHeartbeat implements Heartbeatable {
 	public static int NOT_RESPONDING = 2;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private Date date = null;
-	public int totalEncounters = -1;
-	public int totalObs = -1;
-	public int totalUsers = -1;
-	public int responding = -1;
-	public int activePatients = -1;
-	public int newPatients = -1;
-	public int visits = -1;
+	public int totalEncounters = 0;
+	public int totalObs = 0;
+	public int totalUsers = 0;
+	public int responding = 0;
+	public int activePatients = 0;
+	public int newPatients = 0;
+	public int visits = 0;
 	
 	public OpenmrsHeartbeat(String timestamp, StringTokenizer st)
 			throws ParseException {

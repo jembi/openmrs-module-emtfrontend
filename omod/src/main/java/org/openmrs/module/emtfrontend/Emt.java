@@ -179,19 +179,6 @@ public class Emt {
 	 * @param heartbeats 
 	 */
 	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults, SystemInfo systemInfo) {
-		/*	DATA ELEMENTS:
-		 	name ___ uid
-			Encounters ___ RYe2tuO9njZ
-			Observations ___ NorJph8rRjt
-			Users ___ GKi8zBGuC3p
-			Patients-Active ___ hk0HYxaBPtz
-			Patients-New ___ aGdN2xl9nUj
-			Visits ___ nqGCy0uyzm8
-		 */
-		/*	ORG UNITS/ TODO OpenMRS Locations match
-		 	" + dhisOrganizationUnitUid +  ": configured at dhis side {facility Gashora CS which is Rwanda-East-Bugesera District-Nyamata Sub District-Gashora and has a uid of " + dhisOrganizationUnitUid +  "}
-		 */
-		//20160101 00:00:000 to 20160102 00:00:000
 		Calendar cal = Calendar.getInstance();
 		Date today = new Date();
 		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMMdd");
@@ -409,7 +396,7 @@ public class Emt {
 				String line = null;
 				
 				while ((line = br.readLine()) != null) {
-					if(line.startsWith(emtDataElementCode)) {
+					if(line.startsWith(emtDataElementCode + "=")) {
 						dataElementUid = line.replace(emtDataElementCode + "=", "");
 					}
 				}
@@ -704,7 +691,7 @@ public class Emt {
 		} else if (openmrsHeartbeats.size() > 1) {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).totalEncounters;
 		}
-		return -1;
+		return 0;
 	}
 
 	private int totalObs(boolean atStart) {
@@ -713,7 +700,7 @@ public class Emt {
 		} else if (openmrsHeartbeats.size() > 1) {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).totalObs;
 		}
-		return -1;
+		return 0;
 	}
 
 	private int totalUsers(boolean atStart) {
@@ -722,7 +709,7 @@ public class Emt {
 		} else if (openmrsHeartbeats.size() > 1) {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).totalUsers;
 		}
-		return -1;
+		return 0;
 	}
 
 	private int totalActivePatients(boolean atStart) {
@@ -731,7 +718,7 @@ public class Emt {
 		} else if (openmrsHeartbeats.size() > 1) {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).activePatients;
 		}
-		return -1;
+		return 0;
 	}
 
 	private int totalNewPatients(boolean atStart) {
@@ -740,7 +727,7 @@ public class Emt {
 		} else if (openmrsHeartbeats.size() > 1) {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).newPatients;
 		}
-		return -1;
+		return 0;
 	}
 
 	private int totalVisits(boolean atStart) {
@@ -749,7 +736,7 @@ public class Emt {
 		} else if (openmrsHeartbeats.size() > 1) {
 			return ((OpenmrsHeartbeat) openmrsHeartbeats.get(openmrsHeartbeats.size() - 1)).visits;
 		}
-		return -1;
+		return 0;
 	}
 
 	private void generatePdfReport(List<String> lines, Date startDate,
@@ -830,8 +817,8 @@ public class Emt {
 						.compareTo((Integer) ((Heartbeat) hb2).freeMemory);
 			}
 		});
-		int freeMemo = heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(heartbeats.size() - 1)).freeMemory : -1;
-		int totalMemo = heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(heartbeats.size() - 1)).totalMemory : -1;
+		int freeMemo = heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(heartbeats.size() - 1)).freeMemory : 0;
+		int totalMemo = heartbeats.size() > 0 ? ((Heartbeat) heartbeats.get(heartbeats.size() - 1)).totalMemory : 0;
 		
 		memo[0] = freeMemo;
 		memo[1] = totalMemo;
