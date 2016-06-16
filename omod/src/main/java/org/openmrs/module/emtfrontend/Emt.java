@@ -65,7 +65,11 @@ public class Emt {
 			String openmrsAPPName = args[5];
 			String dhisOrganizationUnitUid = args[6];
 			SystemInfo systemInfo = new SystemInfo(args[7]);
+			String serverRealLocationString = args[8];
 			
+			if(serverRealLocationString == null || serverRealLocationString == "") {
+				serverRealLocationString = "";
+			}
 			if (startDate.after(endDate)) {
 				// swap start and end date if start date after end date
 				Date tmp = startDate;
@@ -156,7 +160,7 @@ public class Emt {
 					+ df.format(end)
 					+ ")";
 			List<String> s = emt.report(startDate, endDate, thisWeekUptime,
-					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults, systemInfo);
+					previousWeekUptime, previousMonthUptime, dhisDataValuesFilePath, installDirectory, openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults, systemInfo, serverRealLocationString);
 			System.out.println(s);
 			String emtPdfOutput = args[3];
 			emt.generatePdfReport(s, startDate, endDate, emtPdfOutput);
@@ -178,7 +182,7 @@ public class Emt {
 	 * @param openmrsUptime 
 	 * @param heartbeats 
 	 */
-	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults, SystemInfo systemInfo) {
+	private void generateDHISDataValueSets(String dhisDataValuesFilePath, Date startDate, Date endDate, int obsTotal, int encounterTotal, int totalUsers, int totalPatientActive, int totalPatientNew, int totalVisits, int startupCount, int thisWeekUptime, int previousWeekUptime, int previousMonthUptime, int openmrsUptimePercentage, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults, SystemInfo systemInfo, String serverRealLocationString) {
 		Calendar cal = Calendar.getInstance();
 		Date today = new Date();
 		SimpleDateFormat dFormat = new SimpleDateFormat("yyyyMMdd");
@@ -342,6 +346,10 @@ public class Emt {
 					+ getDataElementUidFor("DATA-ELEMENT_systemInfo_installedModules") + "\", \"period\": \"" + dFormat.format(today)
 					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + systemInfo.getinstalledModulesString()
 					+ "\"}";
+			String systemRealLocationDataElement = "{ \"dataElement\": \""
+					+ getDataElementUidFor("DATA-ELEMENT_systemRealLocation") + "\", \"period\": \"" + dFormat.format(today)
+					+ "\", \"orgUnit\": \"" + dhisOrganizationUnitUid + "\", \"value\": \"" + serverRealLocationString
+					+ "\"}";
 			
 			String json = "{\"dataValues\": [\n  " + systemIdDataElement + ",\n  " + openMRSAppNameDataElement + ",\n  "
 					+ primaryClinicDaysDataElement + ",\n  " + primaryClinicHoursDataElement + ",\n  "
@@ -360,7 +368,7 @@ public class Emt {
 					+ systemInfo_systemTimezone + ",\n  " + systemInfo_fileSystemEncoding + ",\n  "
 					+ systemInfo_systemDateTime + ",\n  " + systemInfo_userDirectory + ",\n  "
 					+ systemInfo_tempDirectory + ",\n  " + systemInfo_openMRSVersion + ",\n  "
-					+ systemInfo_installedModules + "\n ]\n}";
+					+ systemRealLocationDataElement + ",\n  "+ systemInfo_installedModules + "\n ]\n}";
 			File dhisDataJson = new File(dhisDataValuesFilePath);
 			try {
 				FileOutputStream fop = new FileOutputStream(dhisDataJson);
@@ -574,7 +582,7 @@ public class Emt {
 
 	private List<String> report(Date startDate, Date endDate,
 			String thisWeekUptime, String previousWeekUptime,
-			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults, SystemInfo systemInfo) {
+			String previousMonthUptime, String dhisDataValuesFilePath, String installDirectory, String openmrsAPPName, String dhisOrganizationUnitUid, Integer[] viralLoadTestResults, SystemInfo systemInfo, String serverRealLocationString) {
 		
 		Uptime uptime = systemUptime(startDate, endDate);
 		Uptime openmrsUptime = openmrsUptime(startDate, endDate);
@@ -666,6 +674,7 @@ public class Emt {
 		ss.add("\nOperating System: " + systemInfo.operatingSystem);
 		ss.add("\nOpenMRS Platform Version: " + systemInfo.getOpenMRSVersion());
 		ss.add("\nOpenMRS Loaded Modules: " + systemInfo.getinstalledModulesString());
+		ss.add("Real Location of this server's details: " + serverRealLocationString);
 		
 		//TODO update after hearing from @Christian
 		int obsTotal = totalObs(true);
@@ -676,7 +685,7 @@ public class Emt {
 		int totalVisits = totalVisits(true);
 		
 		if(dhisDataValuesFilePath != null && !dhisDataValuesFilePath.equals("") && dhisOrganizationUnitUid != null && !dhisOrganizationUnitUid.equals("")) {
-			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults, systemInfo);
+			generateDHISDataValueSets(dhisDataValuesFilePath, startDate, endDate, obsTotal, encounterTotal, totalUsers, totalPatientActive, totalPatientNew, totalVisits, startupCount, (int) Math.round(Double.parseDouble(thisWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousWeekUptime.split(" %")[0])), (int) Math.round(Double.parseDouble(previousMonthUptime.split(" %")[0])), (int) Math.round(openmrsUptime.percentage), openmrsAPPName, dhisOrganizationUnitUid, viralLoadTestResults, systemInfo, serverRealLocationString);
 		}
 		return ss;
 	}
@@ -908,7 +917,7 @@ public class Emt {
 				if (line.startsWith("PATIENTS_WITH_VIRAL_LOAD_TEST_RESULTS(EVER,LAST6MONTHS,LASTYEAR);")) {
 					String viralLoadTestResults = line.split(":::")[1];
 					
-					if (viralLoadTestResults != null && !viralLoadTestResults.equals("")) {
+					if (viralLoadTestResults != null && !viralLoadTestResults.equals("") && viralLoadTestResults.indexOf(";") > 0) {
 						Integer viralLoads_ever = viralLoadTestResults.split(";")[0] != null
 								? Integer.parseInt(viralLoadTestResults.split(";")[0]) : 0;
 						Integer viralLoads_6Months = viralLoadTestResults.split(";")[1] != null

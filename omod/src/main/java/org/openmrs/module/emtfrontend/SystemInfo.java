@@ -30,6 +30,8 @@ public class SystemInfo {
 	private String installedModulesString;
 
 	public SystemInfo(String openmrsSpecificInfo) {
+		System.out.println("Received OpenMRS Specific Information from the server: " + openmrsSpecificInfo);
+		
 		setOpenmrsSpecificInfo(openmrsSpecificInfo);
 		intialiseOpenMRSSpecificInformation();
 	}
@@ -43,7 +45,7 @@ public class SystemInfo {
 	}
 	
 	private void intialiseOpenMRSSpecificInformation() {
-		if(getOpenmrsSpecificInfo() != null && getOpenmrsSpecificInfo().split(";").length == 2) {
+		if(getOpenmrsSpecificInfo() != null && getOpenmrsSpecificInfo().indexOf(";") > 0 && getOpenmrsSpecificInfo().split(";").length == 2) {
 			setOpenMRSVersion(getOpenmrsSpecificInfo().split(";")[0] != null && getOpenmrsSpecificInfo().split(";")[0].startsWith("oVersion:") ? getOpenmrsSpecificInfo().split(";")[0].replace("oVersion:", "") : "1.6.7");
 			setModulesFolderPath(getOpenmrsSpecificInfo().split(";")[1] != null && getOpenmrsSpecificInfo().split(";")[1].startsWith("oModulesFolderPath:") ? getOpenmrsSpecificInfo().split(";")[1].replace("oModulesFolderPath:", "") : "1.6.7");
 			setModuleObjects();
